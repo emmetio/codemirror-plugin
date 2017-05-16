@@ -1,8 +1,9 @@
 'use strict';
 
 import emmetExpandAbbreviation from './lib/commands/expand-abbreviation';
+import emmetInsertLineBreak from './lib/commands/formatted-line-break';
 
-const globalCommands = { emmetExpandAbbreviation };
+const globalCommands = { emmetExpandAbbreviation, emmetInsertLineBreak };
 
 /**
  * Adds Emmet support to given CodeMirror editor instance
@@ -10,15 +11,19 @@ const globalCommands = { emmetExpandAbbreviation };
  * @return {Function} A function that, when called, completely removes Emmet
  * support from editor instance
  */
-export default function(editor) {
-	const keymap = {
-		Tab: 'emmetExpandAbbreviation'
+export default function(editor, options) {
+	options = options || {};
+	const keymap = options.keymap || {
+		Tab: 'emmetExpandAbbreviation',
+		'Enter': 'emmetInsertLineBreak'
 	};
 
 	registerCommands(editor, globalCommands);
 	editor.addKeyMap(keymap);
+	editor.setOption('emmet', options);
 
 	return () => {
+		editor.setOption('emmet', null);
 		editor.removeKeyMap(keymap);
 	};
 }

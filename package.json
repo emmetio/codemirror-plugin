@@ -1,0 +1,31 @@
+{
+  "name": "@emmetio/codemirror-plugin",
+  "version": "0.0.1",
+  "description": "Plugin for CodeMirror web editor",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -wc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/codemirror-plugin.git"
+  },
+  "keywords": [],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/codemirror-plugin/issues"
+  },
+  "homepage": "https://github.com/emmetio/codemirror-plugin#readme",
+  "devDependencies": {
+    "codemirror": "^5.25.2",
+    "rollup": "^0.41.6",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-watch": "^3.2.2"
+  },
+  "dependencies": {
+    "@emmetio/expand-abbreviation": "^0.5.5",
+    "@emmetio/extract-abbreviation": "^0.1.1"
+  }
+}

@@ -2,10 +2,12 @@
   "name": "@emmetio/codemirror-plugin",
   "version": "0.0.1",
   "description": "Plugin for CodeMirror web editor",
-  "main": "index.js",
+  "main": "dist/emmet-codemirror-plugin.cjs.js",
+  "module": "dist/emmet-codemirror-plugin.es.js",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -wc"
+    "watch": "rollup -wc",
+	"prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,7 @@
     "rollup-watch": "^3.2.2"
   },
   "dependencies": {
-    "@emmetio/expand-abbreviation": "^0.5.5",
-    "@emmetio/extract-abbreviation": "^0.1.1"
+    "@emmetio/expand-abbreviation": "^0.5.6",
+    "@emmetio/extract-abbreviation": "^0.1.2"
   }
 }

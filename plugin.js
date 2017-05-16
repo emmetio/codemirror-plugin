@@ -29,7 +29,7 @@ export default function(editor) {
  * @param  {Object}     commands Commands map
  */
 function registerCommands(editor, commands) {
-	const CodeMirror = editor.contructor;
+	const CodeMirror = editor.constructor;
 
 	Object.keys(commands).forEach(name => {
 		if (!CodeMirror.commands[name]) {

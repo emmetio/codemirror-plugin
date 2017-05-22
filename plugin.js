@@ -2,6 +2,7 @@
 
 import emmetExpandAbbreviation from './lib/commands/expand-abbreviation';
 import emmetInsertLineBreak from './lib/commands/formatted-line-break';
+import markAbbreviation from './lib/abbreviation-marker';
 
 const globalCommands = { emmetExpandAbbreviation, emmetInsertLineBreak };
 
@@ -15,14 +16,16 @@ export default function(editor, options) {
 	options = options || {};
 	const keymap = options.keymap || {
 		Tab: 'emmetExpandAbbreviation',
-		'Enter': 'emmetInsertLineBreak'
+		Enter: 'emmetInsertLineBreak'
 	};
 
 	registerCommands(editor, globalCommands);
 	editor.addKeyMap(keymap);
 	editor.setOption('emmet', options);
+	const disposeMarker = markAbbreviation(editor);
 
 	return () => {
+		disposeMarker();
 		editor.setOption('emmet', null);
 		editor.removeKeyMap(keymap);
 	};

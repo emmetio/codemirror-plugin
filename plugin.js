@@ -3,6 +3,8 @@
 import emmetExpandAbbreviation from './lib/commands/expand-abbreviation';
 import emmetInsertLineBreak from './lib/commands/formatted-line-break';
 import markAbbreviation from './lib/abbreviation-marker';
+import autocompleteProvider from './lib/autocomplete';
+import { findMarker } from './lib/abbreviation-marker';
 
 const globalCommands = { emmetExpandAbbreviation, emmetInsertLineBreak };
 
@@ -20,14 +22,21 @@ export default function(editor, options) {
 	};
 
 	registerCommands(editor, globalCommands);
+	registerAutocomplete(editor);
+
 	editor.addKeyMap(keymap);
 	editor.setOption('emmet', options);
 	const disposeMarker = markAbbreviation(editor);
 
-	return () => {
-		disposeMarker();
-		editor.setOption('emmet', null);
-		editor.removeKeyMap(keymap);
+	return {
+		getCompletions(pos, force) {
+			return autocompleteProvider(editor, pos, force);
+		},
+		dispose() {
+			disposeMarker();
+			editor.setOption('emmet', null);
+			editor.removeKeyMap(keymap);
+		}
 	};
 }
 
@@ -44,4 +53,37 @@ function registerCommands(editor, commands) {
 			CodeMirror.commands[name] = commands[name];
 		}
 	});
+}
+
+function registerAutocomplete(editor) {
+	const CodeMirror = editor.constructor;
+
+	CodeMirror.registerGlobalHelper('hint', 'emmet',
+		(mode, editor) => {
+			return !!findMarker(editor, editor.getCursor());
+		},
+		(editor, options) => {
+			const pos = editor.getCursor();
+			const marker = findMarker(editor, pos);
+			const markeRange = marker.find();
+
+			return {
+				from: markeRange.from,
+				to: markeRange.to,
+				list: autocompleteProvider(editor, pos).map(transformCompletion)
+			};
+		});
+}
+
+function transformCompletion(completion) {
+	return {
+		from: completion.range.from,
+		to: completion.range.to,
+		render(elt) {
+			elt.textContent = completion.label;
+		},
+		hint() {
+			completion.insert();
+		}
+	};
 }

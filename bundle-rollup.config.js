@@ -6,7 +6,11 @@ import uglify from 'rollup-plugin-uglify';
 
 export default {
 	entry: './plugin.js',
-	plugins: [ nodeResolve(), buble(), uglify() ],
+	plugins: [
+		nodeResolve(),
+		buble()
+		// uglify()
+	],
 	moduleName: 'emmetCodeMirrorPlugin',
 	format: 'umd',
 	dest: 'dist/emmet-codemirror-plugin.js',

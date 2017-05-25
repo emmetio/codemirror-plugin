@@ -1,7 +1,7 @@
 'use strict';
 
 export default {
-	entry: './plugin.js',
+	entry: './extension.js',
 	external: [
 		'@emmetio/expand-abbreviation',
 		'@emmetio/extract-abbreviation'

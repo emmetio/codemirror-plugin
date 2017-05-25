@@ -51,9 +51,12 @@
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			mode : "text/html",
 			lineNumbers : true,
-			extraKeys: {"Ctrl-Space": "autocomplete"},
+			extraKeys: {
+				'Ctrl-Space': 'autocomplete',
+				'Tab': 'emmetExpandAbbreviation',
+				'Enter': 'emmetInsertLineBreak'
+			}
 		});
-		const plugin = emmetCodeMirrorPlugin(editor);
 	</script>
 </body>
 </html>

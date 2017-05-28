@@ -6,7 +6,7 @@ import {
 	markOnEditorChange, findMarker, markAbbreviation, clearMarkers
 } from './lib/abbreviation-marker';
 import autocompleteProvider from './lib/autocomplete';
-import { extractAbbreviation, createAbbreviationModel } from './lib/expand-abbreviation';
+import { extractAbbreviation, parseAbbreviation, createAbbreviationModel } from './lib/expand-abbreviation';
 
 const commands = { emmetExpandAbbreviation, emmetInsertLineBreak };
 
@@ -36,7 +36,7 @@ export default function registerEmmetExtension(CodeMirror) {
 	CodeMirror.defineOption('emmet', {});
 
 	/**
-	 * Returns context Emmet completions.
+	 * Returns Emmet completions for context from `pos` position.
 	 * Abbreviations are calculated for marked abbreviation at given position.
 	 * If no parsed abbreviation marker is available and `force` argument is
 	 * given, tries to mark abbreviation and populate completions list again.
@@ -70,7 +70,7 @@ export default function registerEmmetExtension(CodeMirror) {
 				if (model) {
 					abbrRange = {
 						from: { line: pos.line, ch: extracted.location },
-						to: {line: pos.line, ch: extracted.location + extracted.abbreviation.length }
+						to: { line: pos.line, ch: extracted.location + extracted.abbreviation.length }
 					};
 					list = autocompleteProvider(editor, model, abbrRange.from, pos);
 				}
@@ -86,17 +86,47 @@ export default function registerEmmetExtension(CodeMirror) {
 		}
 	});
 
-	CodeMirror.registerHelper('emmet', 'completions', editor => {
-		const pos = editor.getCursor();
+	/**
+	 * Returns valid Emmet abbreviation and its location in editor from given
+	 * position
+	 * @param  {CodeMirror.Pos} [pos] Position from which abbreviation should be
+	 *                                extracted. If not given, current cursor
+	 *                                position is used
+	 * @return {Object} Object with `abbreviation` and `location` properties
+	 * or `null` if there’s no valid abbreviation
+	 */
+	CodeMirror.defineExtension('getEmmetAbbreviation', function(pos) {
+		const editor = this;
+		pos = pos || editor.getCursor();
 		const marker = findMarker(editor, pos);
-		const markeRange = marker.find();
 
-		return {
-			from: markeRange.from,
-			to: markeRange.to,
-			list: autocompleteProvider(editor, pos)
-		};
+		if (marker) {
+			return {
+				abbreviation: marker.model.abbreviation,
+				ast: marker.model.ast,
+				location: marker.find().from,
+				fromMarker: true
+			};
+		}
+
+		const extracted = extractAbbreviation(editor, pos);
+		if (extracted) {
+			try {
+				return {
+					abbreviation: extracted.abbreviation,
+					ast: parseAbbreviation(extracted.abbreviation, editor),
+					location: { line: pos.line,  ch: extracted.location },
+					fromMarker: false
+				};
+			} catch (err) {
+				// Will throw if abbreviation is invalid
+			}
+		}
+
+		return null;
 	});
 
-	CodeMirror.registerHelper('emmet', 'clearMarkers', clearMarkers);
+	CodeMirror.defineExtension('findEmmetMarker', function(pos) {
+		return findMarker(this, pos || this.getCursor());
+	});
 }

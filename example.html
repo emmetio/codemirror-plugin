@@ -21,8 +21,33 @@
 		color: #fa4;
 	}
 
+	/* Add subtle visual clue for marked Emmet abbreviation */
 	.emmet-abbreviation {
 		border-bottom: 1px dotted green;
+	}
+
+	/* Emmet completions styling */
+	.emmet-label {
+		display: inline-block;
+		min-width: 100px;
+	}
+
+	.emmet-preview {
+		margin-left: 15px;
+		opacity: 0.6;
+		display: inline-block;
+		max-width: 300px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.emmet-preview__expand {
+		display: block;
+		margin-left: 0;
+		max-width: 400px;
+		max-height: 5.5em;
+		white-space: pre;
 	}
 	</style>
 </head>
@@ -55,6 +80,70 @@
 				'Ctrl-Space': 'autocomplete',
 				'Tab': 'emmetExpandAbbreviation',
 				'Enter': 'emmetInsertLineBreak'
+			}
+		});
+
+		// Add completions provider for CodeMirror’s `show-hint` addon
+		CodeMirror.registerGlobalHelper('hint', 'emmet', function(mode, editor) {
+			// Tell `show-hint` module that current helper will provide completions
+			return !!editor.getEmmetAbbreviation();
+		}, function(editor, options) {
+			const completions = editor.getEmmetCompletions();
+			if (completions) {
+				return {
+					from: completions.from,
+					to: completions.to,
+					// Transform Emmet completions to ones that supported by `show-hint`
+					list: completions.list.map(function(completion) {
+						return {
+							from: completion.range.from,
+							to: completion.range.to,
+							render(elt) {
+								var content = document.createDocumentFragment();
+								var label = document.createElement('span');
+								label.className = 'emmet-label';
+
+								var preview = document.createElement('span');
+								preview.className = 'emmet-preview';
+
+								content.appendChild(label);
+								content.appendChild(preview);
+
+								if (completion.type === 'expanded-abbreviation') {
+									// It’s an expanded abbreviation completion:
+									// render preview for it
+									label.className += ' emmet-label__expand';
+									label.textContent = 'Expand abbreviation';
+
+									preview.className += ' emmet-preview__expand';
+									// Replace tab with a few spaces so preview would take
+									// lesser space
+									preview.textContent = completion.preview.replace(/\t/g, '  ');
+								} else {
+									// A regular snippet: render completion abbreviation
+									// and its preview
+									label.textContent = completion.label;
+									preview.textContent = completion.preview;
+								}
+
+								elt.appendChild(content);
+							},
+							hint() {
+								// Use completions’ `insert()` method to properly
+								// insert Emmet completion
+								completion.insert();
+							}
+						};
+					})
+				};
+			}
+		});
+
+		// Automatically display Emmet completions when cursor enters abbreviation
+		// marker if `markEmmetAbbreviation` option was enabled (true by default)
+		editor.on('cursorActivity', function() {
+			if (editor.getOption('markEmmetAbbreviation') && editor.findEmmetMarker()) {
+				editor.showHint({ completeSingle: false });
 			}
 		});
 	</script>

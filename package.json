@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@emmetio/css-snippets-resolver": "^0.2.5",
-    "@emmetio/expand-abbreviation": "^0.5.6",
+    "@emmetio/expand-abbreviation": "^0.5.7",
     "@emmetio/extract-abbreviation": "^0.1.2"
   }
 }

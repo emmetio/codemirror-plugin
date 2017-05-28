@@ -80,6 +80,22 @@
 				'Ctrl-Space': 'autocomplete',
 				'Tab': 'emmetExpandAbbreviation',
 				'Enter': 'emmetInsertLineBreak'
+			},
+
+			// Example of passing custom snippets to Emmet.
+			// `markupSnippets` are used for markup languages like HTML, Slim, Pug etc.,
+			// `stylesheetSnippets` are used for stylesheet syntaxes like CSS, LESS etc.
+			// Since a single editor may contain mixed syntaxes, you should
+			// explicitly separate markup and stylesheet syntaxes instead of passing
+			// a single `snippets` property, as described in `@emmetio/expand-abbreviation`
+			// module
+			emmet: {
+				markupSnippets: {
+					foo: 'div.foo[bar=baz]'
+				},
+				stylesheetSnippets: {
+					myp: 'my-super: property'
+				}
 			}
 		});
 

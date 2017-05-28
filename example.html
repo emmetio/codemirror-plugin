@@ -88,62 +88,93 @@
 			// Tell `show-hint` module that current helper will provide completions
 			return !!editor.getEmmetAbbreviation();
 		}, function(editor, options) {
+			// Activate auto-popup, if disabled (see below)
+			const marker = editor.findEmmetMarker();
+			clearTimeout(marker.popupDisableTimer);
+			marker.autoPopupDisabled = false;
+
 			const completions = editor.getEmmetCompletions();
-			if (completions) {
-				return {
-					from: completions.from,
-					to: completions.to,
-					// Transform Emmet completions to ones that supported by `show-hint`
-					list: completions.list.map(function(completion) {
-						return {
-							from: completion.range.from,
-							to: completion.range.to,
-							render(elt) {
-								var content = document.createDocumentFragment();
-								var label = document.createElement('span');
-								label.className = 'emmet-label';
+			return completions && {
+				from: completions.from,
+				to: completions.to,
+				// Transform Emmet completions to ones that supported by `show-hint`
+				list: completions.list.map(function(completion) {
+					return {
+						from: completion.range.from,
+						to: completion.range.to,
+						render: function(elt) {
+							var content = document.createDocumentFragment();
+							var label = document.createElement('span');
+							label.className = 'emmet-label';
 
-								var preview = document.createElement('span');
-								preview.className = 'emmet-preview';
+							var preview = document.createElement('span');
+							preview.className = 'emmet-preview';
 
-								content.appendChild(label);
-								content.appendChild(preview);
+							content.appendChild(label);
+							content.appendChild(preview);
 
-								if (completion.type === 'expanded-abbreviation') {
-									// It’s an expanded abbreviation completion:
-									// render preview for it
-									label.className += ' emmet-label__expand';
-									label.textContent = 'Expand abbreviation';
+							if (completion.type === 'expanded-abbreviation') {
+								// It’s an expanded abbreviation completion:
+								// render preview for it
+								label.className += ' emmet-label__expand';
+								label.textContent = 'Expand abbreviation';
 
-									preview.className += ' emmet-preview__expand';
-									// Replace tab with a few spaces so preview would take
-									// lesser space
-									preview.textContent = completion.preview.replace(/\t/g, '  ');
-								} else {
-									// A regular snippet: render completion abbreviation
-									// and its preview
-									label.textContent = completion.label;
-									preview.textContent = completion.preview;
-								}
-
-								elt.appendChild(content);
-							},
-							hint() {
-								// Use completions’ `insert()` method to properly
-								// insert Emmet completion
-								completion.insert();
+								preview.className += ' emmet-preview__expand';
+								// Replace tab with a few spaces so preview would take
+								// lesser space
+								preview.textContent = completion.preview.replace(/\t/g, '  ');
+							} else {
+								// A regular snippet: render completion abbreviation
+								// and its preview
+								label.textContent = completion.label;
+								preview.textContent = completion.preview;
 							}
-						};
-					})
-				};
-			}
+
+							elt.appendChild(content);
+						},
+						hint: function() {
+							// Use completions’ `insert()` method to properly
+							// insert Emmet completion
+							completion.insert();
+						}
+					};
+				})
+			};
 		});
 
 		// Automatically display Emmet completions when cursor enters abbreviation
 		// marker if `markEmmetAbbreviation` option was enabled (true by default)
 		editor.on('cursorActivity', function() {
-			if (editor.getOption('markEmmetAbbreviation') && editor.findEmmetMarker()) {
-				editor.showHint({ completeSingle: false });
+			if (editor.getOption('markEmmetAbbreviation')) {
+				const marker = editor.findEmmetMarker();
+				if (marker && !marker.autoPopupDisabled) {
+					editor.showHint({ completeSingle: false });
+				}
+			}
+		});
+
+		// Automatic popup with expanded Emmet abbreviation might be very annoying
+		// since almost any latin word can be Emmet abbreviation.
+		// So when user hides completion popup with Escape key, we should mark
+		// Emmet abbreviation marker under cursor as one that shouldn’t receive
+		// automatic completion popup.
+		// Since CodeMirror API does not allow us (easily) to detect if completion
+		// popup was hidden because of user interaction (Esc key) or because it
+		// must recalculate completions on user typing, we will use a timer hack
+		editor.on('startCompletion', function() {
+			var marker = editor.findEmmetMarker();
+			if (marker) {
+				clearTimeout(marker.popupDisableTimer);
+				marker.popupDisableTimer = null;
+			}
+		});
+		editor.on('endCompletion', function() {
+			var marker = editor.findEmmetMarker();
+			if (marker) {
+				clearTimeout(marker.popupDisableTimer);
+				marker.popupDisableTimer = setTimeout(function() {
+					marker.autoPopupDisabled = true;
+				}, 30);
 			}
 		});
 	</script>

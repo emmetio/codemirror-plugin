@@ -6,3 +6,4 @@ jspm_packages
 /*.*
 /test
 /lib
+!/example.html

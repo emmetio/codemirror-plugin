@@ -22,6 +22,10 @@
     "url": "https://github.com/emmetio/codemirror-plugin/issues"
   },
   "homepage": "https://github.com/emmetio/codemirror-plugin#readme",
+  "files": [
+    "dist",
+	"example.html"
+  ],
   "devDependencies": {
     "codemirror": "^5.25.2",
     "rollup": "^0.41.6",

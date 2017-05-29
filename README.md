@@ -3,7 +3,9 @@
 [CodeMirror](http://codemirror.net/) extension that adds [Emmet](https://emmet.io) support to text editor.
 
 ---
-*Extension development is sponsored by [CodePen](https://codepen.io).*
+
+**Extension development is sponsored by [CodePen](https://codepen.io).**
+
 ---
 
 ## How to use
@@ -92,7 +94,7 @@ const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 	// `markupSnippets` are used for markup languages like HTML, Slim, Pug etc.,
 	// `stylesheetSnippets` are used for stylesheet syntaxes like CSS, LESS etc.
 	// Since a single editor may contain mixed syntaxes, you should
-	// explicitly separate markup and stylesheet syntaxes instead of passing
+	// explicitly separate markup and stylesheet snippets instead of passing
 	// a single `snippets` property, as described in `@emmetio/expand-abbreviation`
 	// module
 	emmet: {

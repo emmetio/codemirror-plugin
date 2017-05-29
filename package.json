@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/codemirror-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Plugin for CodeMirror web editor",
   "main": "dist/emmet-codemirror-plugin.cjs.js",
   "module": "dist/emmet-codemirror-plugin.es.js",
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/emmetio/codemirror-plugin#readme",
   "files": [
     "dist",
-	"example.html"
+    "example.html"
   ],
   "devDependencies": {
     "codemirror": "^5.25.2",

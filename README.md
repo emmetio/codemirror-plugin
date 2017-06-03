@@ -78,6 +78,22 @@ CodeMirror doesn’t have native autocomplete support but provides fully optiona
 
 For a complete example of how to use Emmet completions with `show-hint` module, see `example.html` file.
 
+## Tag pair marking and renaming
+
+Pass `markTagPairs: true` option to enable automatic HTML tag pair marking in editor: open and close tags will be marked with `.emmet-open-tag` and `.emmet-close-tag` classes respectively. If this option enabled (off by default), changing either open or close tag will automatically update the opposite part. To disable automatic renaming, pass `autoRenameTags: false` option:
+
+```js
+const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+	mode : "text/html",
+	// Enable tag marking (off by default).
+	markTagPairs: true,
+
+	// Enable tag auto-rename (enabled by default).
+	// Requires `markTagPairs` to be enabled
+	autoRenameTags: true
+});
+```
+
 ## Adding custom snippets
 
 You can add custom Emmet snippets via `emmet` option when creating CodeMirror editor instance:

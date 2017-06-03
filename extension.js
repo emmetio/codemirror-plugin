@@ -7,6 +7,9 @@ import {
 } from './lib/abbreviation-marker';
 import autocompleteProvider from './lib/autocomplete';
 import { extractAbbreviation, parseAbbreviation, createAbbreviationModel } from './lib/expand-abbreviation';
+import getModel, { getCachedModel, resetCachedModel } from './lib/model/index';
+import matchTag, { clearTagMatch } from './lib/match-tag';
+import renameTag from './lib/rename-tag';
 
 const commands = { emmetExpandAbbreviation, emmetInsertLineBreak };
 
@@ -28,6 +31,22 @@ export default function registerEmmetExtension(CodeMirror) {
 		} else {
 			editor.off('change', markOnEditorChange);
 			clearMarkers(editor);
+		}
+	});
+
+	CodeMirror.defineOption('autoRenameTags', true, (editor, value) => {
+		value ? editor.on('change', renameTag) : editor.off('change', renameTag);
+	});
+
+	CodeMirror.defineOption('markTagPairs', false, (editor, value) => {
+		if (value) {
+			editor.on('cursorActivity', matchTag);
+			editor.on('change', resetCachedModel);
+		} else {
+			editor.off('cursorActivity', matchTag);
+			editor.off('change', resetCachedModel);
+			resetCachedModel(editor);
+			clearTagMatch(editor);
 		}
 	});
 
@@ -128,5 +147,12 @@ export default function registerEmmetExtension(CodeMirror) {
 
 	CodeMirror.defineExtension('findEmmetMarker', function(pos) {
 		return findMarker(this, pos || this.getCursor());
+	});
+
+	CodeMirror.defineExtension('getEmmetDocumentModel', function() {
+		const editor = this;
+		return editor.getOption('markTagPairs')
+			? getCachedModel(editor)
+			: getModel(editor);
 	});
 }

@@ -37,6 +37,8 @@
   "dependencies": {
     "@emmetio/css-snippets-resolver": "^0.2.5",
     "@emmetio/expand-abbreviation": "^0.5.7",
-    "@emmetio/extract-abbreviation": "^0.1.2"
+    "@emmetio/extract-abbreviation": "^0.1.2",
+    "@emmetio/html-matcher": "^0.3.2",
+    "@emmetio/stream-reader": "^2.2.0"
   }
 }

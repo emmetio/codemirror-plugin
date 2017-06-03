@@ -49,6 +49,11 @@
 		max-height: 5.5em;
 		white-space: pre;
 	}
+
+	.emmet-open-tag,
+	.emmet-close-tag {
+		border-bottom: 1px dotted red;
+	}
 	</style>
 </head>
 <body>
@@ -76,6 +81,8 @@
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 			mode : "text/html",
 			lineNumbers : true,
+			markTagPairs: true,
+			autoRenameTags: true,
 			extraKeys: {
 				'Ctrl-Space': 'autocomplete',
 				'Tab': 'emmetExpandAbbreviation',

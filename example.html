@@ -113,6 +113,10 @@
 		}, function(editor, options) {
 			// Activate auto-popup, if disabled (see below)
 			const marker = editor.findEmmetMarker();
+			if (!marker) {
+				return;
+			}
+
 			clearTimeout(marker.popupDisableTimer);
 			marker.autoPopupDisabled = false;
 

@@ -28,7 +28,7 @@
   ],
   "devDependencies": {
     "codemirror": "^5.25.2",
-    "rollup": "^0.41.6",
+    "rollup": "^0.43.0",
     "rollup-plugin-buble": "^0.15.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-uglify": "^1.0.2",

@@ -11,7 +11,8 @@ export default [{
 		'@emmetio/extract-abbreviation',
 		'@emmetio/css-snippets-resolver',
 		'@emmetio/html-matcher',
-		'@emmetio/stream-reader'
+		'@emmetio/stream-reader',
+		'@emmetio/stream-reader-utils',
 	],
 	output: [
 		{ format: 'cjs', file: 'dist/emmet-codemirror-plugin.cjs.js' },

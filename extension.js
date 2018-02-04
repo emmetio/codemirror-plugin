@@ -2,6 +2,7 @@
 
 import emmetExpandAbbreviation from './lib/commands/expand-abbreviation';
 import emmetInsertLineBreak from './lib/commands/formatted-line-break';
+import emmetWrapWithAbbreviation from './lib/commands/wrap-with-abbreviation';
 import {
 	markOnEditorChange, findMarker, markAbbreviation, clearMarkers
 } from './lib/abbreviation-marker';
@@ -11,7 +12,7 @@ import getModel, { getCachedModel, resetCachedModel } from './lib/model/index';
 import matchTag, { clearTagMatch } from './lib/match-tag';
 import renameTag from './lib/rename-tag';
 
-const commands = { emmetExpandAbbreviation, emmetInsertLineBreak };
+const commands = { emmetExpandAbbreviation, emmetInsertLineBreak, emmetWrapWithAbbreviation };
 
 /**
  * Registers Emmet extension on given CodeMirror constructor.

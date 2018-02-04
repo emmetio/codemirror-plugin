@@ -19,6 +19,7 @@ npm install --save @emmetio/codemirror-plugin
 The package itself follows CodeMirror extension convention and simply registers new commands and some extension methods. In order to use Emmet, you should create CodeMirror instance and provide keymap with Emmet actions. Currently, this extension registers only 2 actions:
 
 * `emmetExpandAbbreviation` – expand abbreviation from current cursor position.
+* `emmetWrapWithAbbreviation` – wraps selected content with abbreviation.
 * `emmetInsertLineBreak` – inserts formatted line break if cursor is between tags.
 
 The package comes in to flavors: a stand-alone browser bundle and ES2015/CommonJS modules that you can use in your app.
@@ -91,6 +92,16 @@ const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 	// Enable tag auto-rename (enabled by default).
 	// Requires `markTagPairs` to be enabled
 	autoRenameTags: true
+});
+```
+
+## Wrap With Abbreviation
+
+The [Wrap With Abbreviation]()https://docs.emmet.io/actions/wrap-with-abbreviation/ action requires user prompt to enter abbreviation. By default, the `window.prompt()` method is used. But you can use your own prompt UI by registering `emmetPrompt` option:
+
+```js
+editor.setOption('emmetPrompt', function(editor, message, callback) {
+	// Run `callback(abbr)` after user have entered abbreviation or run `callback(null)` to cancel
 });
 ```
 

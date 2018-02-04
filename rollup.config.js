@@ -1,7 +1,11 @@
 'use strict';
 
-export default {
-	entry: './extension.js',
+import nodeResolve from 'rollup-plugin-node-resolve';
+import buble from 'rollup-plugin-buble';
+import uglify from 'rollup-plugin-uglify';
+
+export default [{
+	input: './extension.js',
 	external: [
 		'@emmetio/expand-abbreviation',
 		'@emmetio/extract-abbreviation',
@@ -9,8 +13,21 @@ export default {
 		'@emmetio/html-matcher',
 		'@emmetio/stream-reader'
 	],
-	targets: [
-		{ format: 'cjs', dest: 'dist/emmet-codemirror-plugin.cjs.js' },
-		{ format: 'es',  dest: 'dist/emmet-codemirror-plugin.es.js' },
+	output: [
+		{ format: 'cjs', file: 'dist/emmet-codemirror-plugin.cjs.js' },
+		{ format: 'es', file: 'dist/emmet-codemirror-plugin.es.js' },
 	]
-};
+}, {
+	input: './browser.js',
+	plugins: [
+		nodeResolve(),
+		buble(),
+		uglify()
+	],
+	output: {
+		name: 'emmetCodeMirrorPlugin',
+		format: 'umd',
+		file: 'dist/emmet-codemirror-plugin.js',
+		sourcemap: 'dist/emmet-codemirror-plugin.js.map'
+	}
+}];

@@ -7,9 +7,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -wc",
-    "build:browser": "rollup -c bundle-rollup.config.js",
-    "watch:browser": "rollup -w -c bundle-rollup.config.js",
-    "prepublish": "npm run build && npm run build:browser"
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -27,18 +25,18 @@
     "example.html"
   ],
   "devDependencies": {
-    "codemirror": "^5.25.2",
-    "rollup": "^0.41.6",
-    "rollup-plugin-buble": "^0.15.0",
+    "codemirror": "^5.34.0",
+    "rollup": "^0.55.3",
+    "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^1.0.2",
-    "rollup-watch": "^3.2.2"
+    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-watch": "^4.3.1"
   },
   "dependencies": {
-    "@emmetio/css-snippets-resolver": "^0.2.5",
-    "@emmetio/expand-abbreviation": "^0.5.7",
-    "@emmetio/extract-abbreviation": "^0.1.2",
-    "@emmetio/html-matcher": "^0.3.2",
+    "@emmetio/css-snippets-resolver": "^0.3.0",
+    "@emmetio/expand-abbreviation": "^0.5.9",
+    "@emmetio/extract-abbreviation": "^0.1.4",
+    "@emmetio/html-matcher": "^0.3.3",
     "@emmetio/stream-reader": "^2.2.0"
   }
 }

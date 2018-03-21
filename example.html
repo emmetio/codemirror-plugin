@@ -18,6 +18,10 @@
 	<script src="./dist/emmet-codemirror-plugin.js"></script>
 
 	<style>
+	select[name="syntax"] {
+		margin-bottom: 5px;
+	}
+
 	.CodeMirror {
 		border: 1px solid black;
 	}
@@ -64,7 +68,7 @@
 <body>
 	<h1>Emmet for CodeMirror 5</h1>
 
-	<select name="syntax" id="">
+	<select name="syntax" onchange="updateSyntax(this.value)">
 		<option value="text/html">HTML</option>
 		<option value="text/xml">XML</option>
 		<option value="application/javascript">JavaScript</option>
@@ -75,14 +79,14 @@
 	</select>
 	<textarea id="code" name="code">
 &lt;html style="color: green"&gt;
-  &lt;style&gt;
-body {
-  padding: 10px;
-}
-  &lt;/style&gt;
   &lt;!-- this is a comment --&gt;
   &lt;head&gt;
-&lt;title&gt;HTML Example&lt;/title&gt;
+    &lt;title&gt;HTML Example&lt;/title&gt;
+    &lt;style&gt;
+    body {
+      padding: 10px;
+    }
+    &lt;/style&gt;
   &lt;/head&gt;
   &lt;body&gt;
 The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
@@ -121,6 +125,11 @@ but might not match your style.
 				}
 			}
 		});
+
+		function updateSyntax(mode) {
+			editor.setOption('mode', mode);
+			editor.setValue('');
+		}
 
 		// Add completions provider for CodeMirror’s `show-hint` addon
 		CodeMirror.registerGlobalHelper('hint', 'emmet', function(mode, editor) {

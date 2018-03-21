@@ -9,6 +9,11 @@
 	<script src="./node_modules/codemirror/mode/xml/xml.js"></script>
 	<script src="./node_modules/codemirror/mode/css/css.js"></script>
 	<script src="./node_modules/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+	<script src="./node_modules/codemirror/mode/markdown/markdown.js"></script>
+	<script src="./node_modules/codemirror/mode/php/php.js"></script>
+	<script src="./node_modules/codemirror/mode/slim/slim.js"></script>
+	<script src="./node_modules/codemirror/mode/swift/swift.js"></script>
+
 	<script src="./node_modules/codemirror/addon/hint/show-hint.js"></script>
 	<script src="./dist/emmet-codemirror-plugin.js"></script>
 
@@ -59,23 +64,32 @@
 <body>
 	<h1>Emmet for CodeMirror 5</h1>
 
-	<form><textarea id="code" name="code">
+	<select name="syntax" id="">
+		<option value="text/html">HTML</option>
+		<option value="text/xml">XML</option>
+		<option value="application/javascript">JavaScript</option>
+		<option value="text/markdown">Markdown</option>
+		<option value="text/x-php">PHP</option>
+		<option value="text/x-swift">Swift</option>
+		<option value="text/x-slim">Slim</option>
+	</select>
+	<textarea id="code" name="code">
 &lt;html style="color: green"&gt;
   &lt;style&gt;
-    body {
-	  padding: 10px;
-	}
+body {
+  padding: 10px;
+}
   &lt;/style&gt;
   &lt;!-- this is a comment --&gt;
   &lt;head&gt;
-    &lt;title&gt;HTML Example&lt;/title&gt;
+&lt;title&gt;HTML Example&lt;/title&gt;
   &lt;/head&gt;
   &lt;body&gt;
-	The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
-	but might not match your style.
+The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
+but might not match your style.
   &lt;/body&gt;
 &lt;/html&gt;
-	</textarea></form>
+</textarea>
 
 	<script>
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {

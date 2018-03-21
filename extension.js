@@ -68,6 +68,8 @@ export default function registerEmmetExtension(CodeMirror) {
 			pos = null;
 		}
 
+		pos = pos || editor.getCursor();
+
 		const autocomplete = autocompleteProvider(editor, pos);
 		if (autocomplete && autocomplete.completions.length) {
 			if (editor.getOption('markEmmetAbbreviation')) {
@@ -79,8 +81,8 @@ export default function registerEmmetExtension(CodeMirror) {
 			}
 
 			return {
-				from: autocomplete.model.range.from,
-				to: autocomplete.model.range.to,
+				from: autocomplete.abbreviation.range.from,
+				to: autocomplete.abbreviation.range.to,
 				list: autocomplete.completions
 			};
 		}
@@ -93,7 +95,7 @@ export default function registerEmmetExtension(CodeMirror) {
 	 * extracted. If not given, current cursor position is used
 	 * @return {Abbreviation}
 	 */
-	CodeMirror.defineExtension('getEmmetAbbreviation', (pos) => {
+	CodeMirror.defineExtension('getEmmetAbbreviation', function(pos) {
 		return getAbbreviation(this, pos || this.getCursor());
 	});
 

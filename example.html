@@ -71,7 +71,7 @@
     &lt;title&gt;HTML Example&lt;/title&gt;
   &lt;/head&gt;
   &lt;body&gt;
-	The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;... 
+	The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
 	but might not match your style.
   &lt;/body&gt;
 &lt;/html&gt;
@@ -91,18 +91,19 @@
 			},
 
 			// Example of passing custom snippets to Emmet.
-			// `markupSnippets` are used for markup languages like HTML, Slim, Pug etc.,
-			// `stylesheetSnippets` are used for stylesheet syntaxes like CSS, LESS etc.
-			// Since a single editor may contain mixed syntaxes, you should
-			// explicitly separate markup and stylesheet syntaxes instead of passing
-			// a single `snippets` property, as described in `@emmetio/expand-abbreviation`
-			// module
+			// See https://github.com/emmetio/config
 			emmet: {
-				markupSnippets: {
-					foo: 'div.foo[bar=baz]'
-				},
-				stylesheetSnippets: {
-					myp: 'my-super: property'
+				globals: {
+					markup: {
+						snippets: {
+							foo: 'div.foo[bar=baz]'
+						}
+					},
+					stylesheet: {
+						snippets: {
+							myp: 'my-super: property'
+						}
+					}
 				}
 			}
 		});

@@ -1,16 +1,14 @@
 'use strict';
 
-import emmetExpandAbbreviation from './lib/commands/expand-abbreviation';
+import expandAbbreviation from './lib/commands/expand-abbreviation';
 import emmetInsertLineBreak from './lib/commands/formatted-line-break';
 import emmetWrapWithAbbreviation from './lib/commands/wrap-with-abbreviation';
-import { markOnEditorChange } from './lib/abbreviation-marker';
+import markAbbreviation from './lib/abbreviation-marker';
 import getAbbreviation, { findMarker, clearMarkers, createMarker } from './lib/abbreviation';
 import autocompleteProvider from './lib/autocomplete';
 import getModel, { getCachedModel, resetCachedModel } from './lib/model/index';
 import matchTag, { clearTagMatch } from './lib/match-tag';
 import renameTag from './lib/rename-tag';
-
-const commands = { emmetExpandAbbreviation, emmetInsertLineBreak, emmetWrapWithAbbreviation };
 
 /**
  * Registers Emmet extension on given CodeMirror constructor.
@@ -21,7 +19,13 @@ const commands = { emmetExpandAbbreviation, emmetInsertLineBreak, emmetWrapWithA
  */
 export default function registerEmmetExtension(CodeMirror) {
 	// Register Emmet commands
-	Object.assign(CodeMirror.commands, commands);
+	Object.assign(CodeMirror.commands, {
+		emmetExpandAbbreviation: editor => expandAbbreviation(editor, true),
+		emmetExpandAbbreviationAll: editor => expandAbbreviation(editor, false),
+		emmetInsertLineBreak,
+		emmetWrapWithAbbreviation
+	});
+	const markOnEditorChange = editor => markAbbreviation(editor, editor.getCursor());
 
 	// Defines options that allows abbreviation marking in text editor
 	CodeMirror.defineOption('markEmmetAbbreviation', true, (editor, value) => {
@@ -95,8 +99,8 @@ export default function registerEmmetExtension(CodeMirror) {
 	 * extracted. If not given, current cursor position is used
 	 * @return {Abbreviation}
 	 */
-	CodeMirror.defineExtension('getEmmetAbbreviation', function(pos) {
-		return getAbbreviation(this, pos || this.getCursor());
+	CodeMirror.defineExtension('getEmmetAbbreviation', function(pos, contextAware) {
+		return getAbbreviation(this, pos || this.getCursor(), contextAware);
 	});
 
 	CodeMirror.defineExtension('findEmmetMarker', function(pos) {

@@ -8,11 +8,13 @@
 	<script src="./node_modules/codemirror/lib/codemirror.js"></script>
 	<script src="./node_modules/codemirror/mode/xml/xml.js"></script>
 	<script src="./node_modules/codemirror/mode/css/css.js"></script>
+	<script src="./node_modules/codemirror/mode/javascript/javascript.js"></script>
 	<script src="./node_modules/codemirror/mode/htmlmixed/htmlmixed.js"></script>
 	<script src="./node_modules/codemirror/mode/markdown/markdown.js"></script>
 	<script src="./node_modules/codemirror/mode/php/php.js"></script>
 	<script src="./node_modules/codemirror/mode/slim/slim.js"></script>
 	<script src="./node_modules/codemirror/mode/swift/swift.js"></script>
+	<script src="./node_modules/codemirror/mode/jsx/jsx.js"></script>
 
 	<script src="./node_modules/codemirror/addon/hint/show-hint.js"></script>
 	<script src="./dist/emmet-codemirror-plugin.js"></script>
@@ -72,6 +74,7 @@
 		<option value="text/html">HTML</option>
 		<option value="text/xml">XML</option>
 		<option value="application/javascript">JavaScript</option>
+		<option value="text/jsx">JSX</option>
 		<option value="text/markdown">Markdown</option>
 		<option value="text/x-php">PHP</option>
 		<option value="text/x-swift">Swift</option>
@@ -104,6 +107,7 @@ but might not match your style.
 			extraKeys: {
 				'Ctrl-Space': 'autocomplete',
 				'Tab': 'emmetExpandAbbreviation',
+				'Ctrl-E': 'emmetExpandAbbreviationAll',
 				'Enter': 'emmetInsertLineBreak',
 				'Ctrl-W': 'emmetWrapWithAbbreviation'
 			},

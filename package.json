@@ -26,15 +26,16 @@
   ],
   "devDependencies": {
     "codemirror": "^5.34.0",
-    "rollup": "^0.56.2",
+    "rollup": "^0.57.1",
     "rollup-plugin-buble": "^0.19.2",
-    "rollup-plugin-node-resolve": "^3.0.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-uglify": "^3.0.0",
     "rollup-watch": "^4.3.1"
   },
   "dependencies": {
+    "@emmetio/config": "^0.3.0",
     "@emmetio/css-snippets-resolver": "^0.3.0",
-    "@emmetio/expand-abbreviation": "^0.5.10",
+    "@emmetio/expand-abbreviation": "^0.6.0",
     "@emmetio/extract-abbreviation": "^0.1.6",
     "@emmetio/html-matcher": "^0.3.3",
     "@emmetio/stream-reader": "^2.2.0",

@@ -7,6 +7,7 @@ import uglify from 'rollup-plugin-uglify';
 export default [{
 	input: './extension.js',
 	external: [
+		'@emmetio/config',
 		'@emmetio/expand-abbreviation',
 		'@emmetio/extract-abbreviation',
 		'@emmetio/css-snippets-resolver',
@@ -14,10 +15,15 @@ export default [{
 		'@emmetio/stream-reader',
 		'@emmetio/stream-reader-utils',
 	],
-	output: [
-		{ format: 'cjs', file: 'dist/emmet-codemirror-plugin.cjs.js' },
-		{ format: 'es', file: 'dist/emmet-codemirror-plugin.es.js' },
-	]
+	output: [{
+		format: 'cjs',
+		sourcemap: true,
+		file: 'dist/emmet-codemirror-plugin.cjs.js'
+	}, {
+		format: 'es',
+		sourcemap: true,
+		file: 'dist/emmet-codemirror-plugin.es.js'
+	}]
 }, {
 	input: './browser.js',
 	plugins: [

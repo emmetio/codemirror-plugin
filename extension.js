@@ -41,6 +41,9 @@ export default function registerEmmetExtension(CodeMirror) {
 		value ? editor.on('change', renameTag) : editor.off('change', renameTag);
 	});
 
+	// Enable/disable leading angle bracket for JSX abbreviations
+	CodeMirror.defineOption('jsxBracket', true);
+
 	CodeMirror.defineOption('markTagPairs', false, (editor, value) => {
 		if (value) {
 			editor.on('cursorActivity', matchTag);

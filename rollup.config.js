@@ -14,6 +14,7 @@ export default [{
 		'@emmetio/html-matcher',
 		'@emmetio/stream-reader',
 		'@emmetio/stream-reader-utils',
+		'@emmetio/field-parser'
 	],
 	output: [{
 		format: 'cjs',

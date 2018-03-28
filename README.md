@@ -63,6 +63,29 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 </script>
 ```
+
+## Context-aware abbreviation expand
+
+This plugin offers two modes of expanding abbreviation: *basic* (`emmetExpandAbbreviationAll` action) and *context-aware* (`emmetExpandAbbreviation` acton). Consider following example (`|` is a caret position):
+
+```html
+<div title|="test">
+```
+
+If you try to expand abbreviation in basic mode from given position, the `title` attribute will be replaced with `<title></title>`: it simply extracts & expands abbreviation left to current caret position, no matter if such behavior is expected.
+
+The *context-aware* mode analyzes current caret location and detects if it’s expected to expand abbreviation here. In the example above, context-aware mode simply ignores `title` abbreviation.
+
+Context-aware mode in limited syntaxes only, such as HTML, CSS, Slim, Pug, and it used by default in autocomplete provider. You can use basic mode as a fallback in case you’re working in document with unsupported syntax.
+
+Another feature of context-aware mode is CSS value abbreviations: it can detect that caret is inside CSS property value and resolves abbreviation against know CSS property keywords (defined in [CSS snippets](http://github.com/emmetio/snippets/)). For example, if you try to expand abbreviation here:
+
+```css
+transform: tr|;
+```
+
+...it will insert `translate(x, y)` instead of `text-replace: ;` since it will match `tr` with known keywords of `translate` property, defined in Emmet snippets.
+
 ## Autocomplete provider
 
 The new Emmet 2 concept suggests that Emmet should be used as autocomplete provider: it gives user full control over Tab key, editors’ native snippets and provides real-time preview of expanded abbreviation.
@@ -73,11 +96,28 @@ CodeMirror doesn’t have native autocomplete support but provides fully optiona
 * `list` contains list of completions with the following properties:
 	* `type`: type of completion item, either `expanded-abbreviation` or `snippet`.
 	* `range`: object with `from` and `to` properties that describe range of editor content to be replaced with current completion item. Note that for `expanded-abbreviation` item type this range matches full abbreviation, while for `snippet` type it matches only a part of abbreviation.
-	* `label`: completion display label.
+	* `name`: completion display label.
 	* `preview`: preview of expanded completion item.
+	* `snippet`: expanded completion item, may contain fields like `${1}`.
 	* `insert()`: a method that applies current completion item to editor.
 
 For a complete example of how to use Emmet completions with `show-hint` module, see `example.html` file.
+
+## JSX bracket
+
+If you pass `jsxBracket: true` option, the context-aware abbreviation expander will require a leading `<` before abbreviation to make it expandable. It is especially helpful if you’re using JS snippets or use Tab to align code fragments. 
+
+Here are some examples of how <kbd>Tab</kbd> key behavior differs with `jsxBracket` disabled and enabled:
+
+```js
+// jsxBracket: false (default)
+var div| = 'elem1';  // var <div></div> = 'elem';
+return span|;        // return <span><em></em></span>
+
+// jsxBracket: true
+var div| = 'elem1';  // var div     = 'elem';
+return <span|;       // return <span></span>
+```
 
 ## Tag pair marking and renaming
 
@@ -118,18 +158,19 @@ const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 	},
 
 	// Example of passing custom snippets to Emmet.
-	// `markupSnippets` are used for markup languages like HTML, Slim, Pug etc.,
-	// `stylesheetSnippets` are used for stylesheet syntaxes like CSS, LESS etc.
-	// Since a single editor may contain mixed syntaxes, you should
-	// explicitly separate markup and stylesheet snippets instead of passing
-	// a single `snippets` property, as described in `@emmetio/expand-abbreviation`
-	// module
+	// See https://github.com/emmetio/config
 	emmet: {
-		markupSnippets: {
-			foo: 'div.foo[bar=baz]'
-		},
-		stylesheetSnippets: {
-			myp: 'my-super: property'
+		globals: {
+			markup: {
+				snippets: {
+					foo: 'div.foo[bar=baz]'
+				}
+			},
+			stylesheet: {
+				snippets: {
+					myp: 'my-super: property'
+				}
+			}
 		}
 	}
 });

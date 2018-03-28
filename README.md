@@ -112,7 +112,7 @@ Here are some examples of how <kbd>Tab</kbd> key behavior differs with `jsxBrack
 ```js
 // jsxBracket: false (default)
 var div| = 'elem1';  // var <div></div> = 'elem';
-return span|;        // return <span><em></em></span>
+return <span|;       // return <<span></span>
 
 // jsxBracket: true
 var div| = 'elem1';  // var div     = 'elem';

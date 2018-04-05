@@ -36,7 +36,7 @@
     "@emmetio/config": "^0.4.0",
     "@emmetio/css-snippets-resolver": "^0.3.1",
     "@emmetio/expand-abbreviation": "^0.7.0",
-    "@emmetio/extract-abbreviation": "^0.1.6",
+    "@emmetio/extract-abbreviation": "^0.2.0",
     "@emmetio/field-parser": "^0.3.1",
     "@emmetio/html-matcher": "^0.3.3",
     "@emmetio/stream-reader": "^2.2.0",

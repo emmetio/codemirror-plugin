@@ -55,6 +55,7 @@ export default class AbbreviationTracker {
 
     private marker: CodeMirror.TextMarker | null = null;
     private preview: HTMLElement | null = null;
+    private forcedMarker: HTMLElement | null = null;
 
     constructor(start: number, pos: number, length: number, public forced = false) {
         this.lastPos = pos;
@@ -135,8 +136,15 @@ export default class AbbreviationTracker {
         this.marker = editor.markText(from, to, {
             inclusiveLeft: true,
             inclusiveRight: true,
+            clearWhenEmpty: false,
             className: markClass
         });
+
+        if (this.forced && !this.forcedMarker) {
+            this.forcedMarker = document.createElement('div');
+            this.forcedMarker.className = `${markClass}-marker`;
+            editor.addWidget(from, this.forcedMarker, false);
+        }
     }
 
     /**
@@ -202,6 +210,11 @@ export default class AbbreviationTracker {
             this.marker.clear();
             this.marker = null;
         }
+
+        if (this.forcedMarker) {
+            this.forcedMarker.remove();
+            this.forcedMarker = null;
+        }
     }
 }
 
@@ -232,11 +245,11 @@ export function startTracking(editor: CodeMirror.Editor, start: number, pos: num
 /**
  * Stops abbreviation tracking in given editor instance
  */
-export function stopTracking(editor: CodeMirror.Editor) {
+export function stopTracking(editor: CodeMirror.Editor, skipRemove?: boolean) {
     const tracker = getTracker(editor);
     if (tracker) {
         tracker.unmark();
-        if (tracker.forced) {
+        if (tracker.forced && !skipRemove) {
             // Contents of forced abbreviation must be removed
             const [from, to] = toRange(editor, tracker.range);
             editor.replaceRange('', from, to);

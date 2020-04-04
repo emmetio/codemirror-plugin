@@ -3,6 +3,7 @@ import { defaultConfig, EmmetConfig } from './lib/config';
 import abbreviationTracker from './abbreviation';
 import expandAbbreviation from './commands/expand-abbreviation';
 import emmetResetAbbreviation from './commands/reset-abbreviation'
+import emmetEnterAbbreviationMode from './commands/enter-abbreviation';
 
 type DisposeFn = () => void;
 
@@ -21,6 +22,7 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         emmetExpandAbbreviation: (editor: CodeMirror.Editor) => expandAbbreviation(editor, true),
         emmetExpandAbbreviationAll: (editor: CodeMirror.Editor) => expandAbbreviation(editor, false),
         emmetResetAbbreviation,
+        emmetEnterAbbreviationMode
     });
 
     // Track options change

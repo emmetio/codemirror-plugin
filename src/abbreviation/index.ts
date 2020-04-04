@@ -18,7 +18,6 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
     let lastPos: number | null = null;
 
     const onChange = (ed: CodeMirror.Editor) => {
-        console.log('handle change');
         const pos = getCaret(ed);
         let tracker = handleChange(editor);
 
@@ -33,7 +32,6 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
         lastPos = pos;
     };
     const onSelectionChange = (ed: CodeMirror.Editor) => {
-        console.log('handle selection change');
         if (!isEnabled(ed)) {
             return;
         }

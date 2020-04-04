@@ -20,7 +20,7 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
         const tracker = getTracker(editor);
         if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
             runExpand(editor, tracker.abbreviation.abbr, tracker.range[0], tracker.options);
-            stopTracking(editor);
+            stopTracking(editor, true);
         } else {
             return pass(editor);
         }

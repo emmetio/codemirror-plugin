@@ -40,6 +40,21 @@
 		border-radius: 2px;
 	}
 
+	.emmet-abbreviation-marker {
+		color: #ffffff;
+		background: rgb(0, 180, 0);
+		border-radius: 2px;
+		padding: 0 3px;
+		z-index: 2;
+		height: 15px;
+		margin-top: -15px;
+		margin-left: -20px;
+	}
+
+	.emmet-abbreviation-marker::before {
+		content: '⋮>';
+	}
+
 	/** Inline abbreviation preview */
 
 	.emmet-abbreviation-preview {
@@ -132,6 +147,7 @@ but might not match your style.
 				'Tab': 'emmetExpandAbbreviation',
 				'Esc': 'emmetResetAbbreviation',
 				'Ctrl-E': 'emmetExpandAbbreviationAll',
+				'Ctrl-.': 'emmetEnterAbbreviationMode',
 				// 'Ctrl-Space': 'autocomplete',
 				// 'Enter': 'emmetInsertLineBreak',
 				// 'Ctrl-W': 'emmetWrapWithAbbreviation'

@@ -6,8 +6,7 @@
   "module": "dist/emmet-codemirror-plugin.es.js",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -wc",
-    "prepublish": "npm run build"
+    "watch": "rollup -wc"
   },
   "repository": {
     "type": "git",
@@ -25,21 +24,18 @@
     "example.html"
   ],
   "devDependencies": {
-    "codemirror": "^5.36.0",
-    "rollup": "^0.57.1",
-    "rollup-plugin-buble": "^0.19.2",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-uglify": "^3.0.0",
-    "rollup-watch": "^4.3.1"
+    "@emmetio/action-utils": "^1.0.1",
+    "@emmetio/css-matcher": "^0.1.1",
+    "@emmetio/html-matcher": "^1.2.0",
+    "@emmetio/math-expression": "^1.0.1",
+    "@types/codemirror": "0.0.90",
+    "codemirror": "^5.52.2",
+    "emmet": "^2.0.0-rc.13",
+    "rollup": "^2.3.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^3.8.3"
   },
-  "dependencies": {
-    "@emmetio/config": "^0.4.0",
-    "@emmetio/css-snippets-resolver": "^0.3.1",
-    "@emmetio/expand-abbreviation": "^0.7.1",
-    "@emmetio/extract-abbreviation": "^0.2.0",
-    "@emmetio/field-parser": "^0.3.1",
-    "@emmetio/html-matcher": "^0.3.3",
-    "@emmetio/stream-reader": "^2.2.0",
-    "@emmetio/stream-reader-utils": "^0.1.0"
-  }
+  "dependencies": {}
 }

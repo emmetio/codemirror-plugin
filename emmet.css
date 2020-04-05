@@ -1,0 +1,124 @@
+/* Sample styles for Emmet UI in CodeMirror editor */
+
+/* Visual clue for marked Emmet abbreviation */
+
+.emmet-abbreviation {
+    border-bottom: 1px solid rgba(0, 180, 0, 0.3);
+    border-radius: 2px;
+}
+
+.emmet-abbreviation-marker {
+    color: #ffffff;
+    background: rgb(0, 180, 0);
+    border-radius: 2px;
+    padding: 0 3px;
+    z-index: 2;
+    height: 15px;
+    margin-top: -15px;
+    margin-left: -20px;
+}
+
+.emmet-abbreviation-marker::before {
+    content: '⋮>';
+}
+
+/** Inline abbreviation preview */
+
+.emmet-abbreviation-preview {
+    position: absolute;
+    background: #fff;
+    box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    border-radius: 3px;
+}
+
+.emmet-abbreviation-preview-snippet {
+    font-size: 11px;
+    padding: 5px;
+    max-width: 400px;
+    max-height: 300px;
+    overflow: auto;
+    white-space: pre;
+}
+
+.emmet-abbreviation-preview .emmet-error-snippet-message {
+    padding: 5px;
+}
+
+/** Input panel fow Wrap With Abbreviation */
+
+.emmet-panel {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 100%;
+}
+
+.emmet-panel-wrapper {
+    width: 60%;
+    min-width: 100px;
+    max-width: 500px;
+    padding: 10px;
+    background: #ffffff;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+.emmet-panel-wrapper input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Jetbrains Mono, Fira Code, Consolas, monospace;
+    font-size: 12px;
+}
+
+/* Snippet with abbreviation error */
+
+.emmet-error-snippet {
+    color: red;
+}
+
+.emmet-error-snippet-ptr {
+    position: absolute;
+}
+
+.emmet-error-snippet-spacer {
+    white-space: pre;
+}
+
+.emmet-error-snippet-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: -5px;
+    border-top: 2px solid currentColor;
+}
+
+.emmet-error-snippet-tip {
+    width: 10px;
+    height: 7px;
+    overflow: hidden;
+    position: absolute;
+    right: -10px;
+    top: -5px;
+}
+
+.emmet-error-snippet-tip::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    background: currentColor;
+}
+
+.emmet-error-snippet-message {
+    padding-top: 10px;
+    font-size: 11px;
+}

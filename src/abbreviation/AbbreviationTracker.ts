@@ -1,6 +1,6 @@
 import { UserConfig, markupAbbreviation, MarkupAbbreviation, stylesheetAbbreviation, StylesheetAbbreviation } from 'emmet';
 import { TextRange } from '@emmetio/action-utils';
-import { substr, htmlEscape, toRange, getCaret } from '../lib/utils';
+import { substr, htmlEscape, toRange, getCaret, AbbrError, errorSnippet } from '../lib/utils';
 import { getOptions, expand } from '../lib/emmet';
 import getEmmetConfig from '../lib/config';
 
@@ -18,11 +18,6 @@ interface ParsedAbbreviation extends AbbrBase {
 interface ParsedAbbreviationError extends AbbrBase {
     type: 'error';
     error: AbbrError;
-}
-
-export interface AbbrError {
-    message: string,
-    pos: number
 }
 
 export interface StartTrackingParams {
@@ -164,11 +159,7 @@ export default class AbbreviationTracker {
         if (this.abbreviation) {
             if (this.abbreviation.type === 'error') {
                 const { error } = this.abbreviation;
-                const errClass = `${previewClass}-error`;
-                const message = htmlEscape(error.message.replace(/\s+at\s\d+$/, ''));
-                const pointer = `<div class="${errClass}-pointer">${'-'.repeat(error.pos || 0)}</div>`;
-                const snippet = `<div class="${errClass}-message">${message}</div>`;
-                content = `<div class="${errClass}">${pointer}${snippet}</div>`;
+                content = errorSnippet(error);
             } else if (this.forced || !this.abbreviation.simple) {
                 const snippet = htmlEscape(this.abbreviation.preview);
                 content = `<div class="${previewClass}-snippet">${snippet}</div>`;

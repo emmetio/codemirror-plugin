@@ -1,10 +1,11 @@
 import { TextRange } from '@emmetio/action-utils';
 import { getOptions, getTagContext, ContextTag, expand } from '../lib/emmet';
-import { getCaret, narrowToNonSpace, replaceWithSnippet, substr } from '../lib/utils';
+import { getCaret, narrowToNonSpace, replaceWithSnippet, substr, errorSnippet } from '../lib/utils';
 import { docSyntax, isXML } from '../lib/syntax';
 import { lineIndent } from '../lib/output';
 
 const baseClass = 'emmet-panel';
+const errClass = 'emmet-error';
 
 export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
     const syntax = docSyntax(editor);
@@ -16,6 +17,7 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
 
     let panel = createInputPanel();
     let input = panel.querySelector('input')!;
+    let errContainer = panel.querySelector(`.${baseClass}-error`)!;
     let updated = false;
 
     function onInput(evt: InputEvent) {
@@ -25,10 +27,14 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
             const snippet = expand(editor, input.value, options);
             replaceWithSnippet(editor, wrapRange, snippet);
             updated = true;
+            if (panel.classList.contains(errClass)) {
+                errContainer.innerHTML = '';
+                panel.classList.remove(errClass);
+            }
         } catch (err) {
             updated = false;
-            // TODO handle error in panel
-            console.error(err);
+            panel.classList.add(errClass);
+            errContainer.innerHTML = errorSnippet(err);
         }
     };
 
@@ -68,12 +74,12 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
         input.removeEventListener('blur', cancel);
         panel.remove();
         // @ts-ignore Dispose element references
-        panel = input = null;
+        panel = input = errContainer = null;
     }
 
     input.addEventListener('input', onInput);
     input.addEventListener('keydown', onKeyDown);
-    input.addEventListener('blur', cancel);
+    // input.addEventListener('blur', cancel);
     editor.getWrapperElement().appendChild(panel);
     input.focus();
 }
@@ -81,7 +87,10 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
 function createInputPanel(): HTMLElement {
     const elem = document.createElement('div');
     elem.className = baseClass;
-    elem.innerHTML = `<div class="${baseClass}-wrapper"><input type="text" placeholder="Enter abbreviation" autofocus /></div>`;
+    elem.innerHTML = `<div class="${baseClass}-wrapper">
+        <input type="text" placeholder="Enter abbreviation" autofocus />
+        <div class="${baseClass}-error"></div>
+    </div>`;
     return elem;
 }
 

@@ -5,6 +5,11 @@ import { CSSProperty, TextRange } from '@emmetio/action-utils';
 export const tabStopStart = String.fromCodePoint(0xFFF0);
 export const tabStopEnd = String.fromCodePoint(0xFFF1);
 
+export interface AbbrError {
+    message: string,
+    pos: number
+}
+
 /**
  * Returns copy of region which starts and ends at non-space character
  */
@@ -194,4 +199,19 @@ export function htmlEscape(str: string): string {
  */
 export function pass(editor: CodeMirror.Editor) {
     return editor.constructor['Pass'];
+}
+
+/**
+ * Generates snippet with error pointer
+ */
+export function errorSnippet(err: AbbrError, baseClass = 'emmet-error-snippet'): string {
+    const spacer = ' '.repeat(err.pos || 0);
+    return `<div class="${baseClass}">
+        <div class="${baseClass}-ptr">
+            <div class="${baseClass}-line"></div>
+            <div class="${baseClass}-tip"></div>
+            <div class="${baseClass}-spacer">${spacer}</div>
+        </div>
+        <div class="${baseClass}-message">${htmlEscape(err.message.replace(/\s+at\s+\d+$/, ''))}</div>
+    </div>`;
 }

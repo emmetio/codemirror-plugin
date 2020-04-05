@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES6",
     "sourceMap": true,
     "noUnusedLocals": true,
     "alwaysStrict": true,

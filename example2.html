@@ -73,6 +73,35 @@
 		padding: 5px;
 	}
 
+	/** Input panel fow Wrap With Abbreviation */
+	.emmet-panel {
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		top: 0;
+		left: 0;
+		z-index: 2;
+		width: 100%;
+	}
+
+	.emmet-panel-wrapper {
+		width: 60%;
+		min-width: 100px;
+		max-width: 500px;
+		padding: 10px;
+		background: #ffffff;
+		border-bottom-left-radius: 3px;
+		border-bottom-right-radius: 3px;
+		box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+		box-sizing: border-box;
+	}
+
+	.emmet-panel-wrapper input {
+		width: 100%;
+		box-sizing: border-box;
+		font-family: Jetbrains Mono, Fira Code, Consolas, monospace;
+		font-size: 12px;
+	}
 
 	/* Emmet completions styling */
 	.emmet-label {
@@ -133,8 +162,11 @@
     &lt;/style&gt;
   &lt;/head&gt;
   &lt;body&gt;
-The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
-but might not match your style.
+    line 1
+    line 2
+    line 3
+    The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
+    but might not match your style.
   &lt;/body&gt;
 &lt;/html&gt;
 </textarea>
@@ -149,8 +181,8 @@ but might not match your style.
 				'Enter': 'emmetInsertLineBreak',
 				'Ctrl-E': 'emmetExpandAbbreviationAll',
 				'Ctrl-.': 'emmetEnterAbbreviationMode',
+				'Ctrl-W': 'emmetWrapWithAbbreviation'
 				// 'Ctrl-Space': 'autocomplete',
-				// 'Ctrl-W': 'emmetWrapWithAbbreviation'
 			}
 		});
 

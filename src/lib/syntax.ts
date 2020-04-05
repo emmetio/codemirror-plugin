@@ -3,7 +3,7 @@ import { SyntaxType } from 'emmet';
 const markupSyntaxes = ['html', 'xml', 'xsl', 'jsx', 'haml', 'jade', 'pug', 'slim'];
 const stylesheetSyntaxes = ['css', 'scss', 'sass', 'less', 'sss', 'stylus', 'postcss'];
 const xmlSyntaxes = ['xml', 'xsl', 'jsx'];
-const htmlSyntaxes = ['html'];
+const htmlSyntaxes = ['html', 'htmlmixed'];
 const cssSyntaxes = ['css', 'scss', 'less'];
 const jsxSyntaxes = ['jsx', 'tsx'];
 
@@ -50,6 +50,14 @@ export function syntaxFromPos(editor: CodeMirror.Editor, pos: number): string | 
     const p = editor.posFromIndex(pos);
     const mode = editor.getModeAt(p);
     return mode && mode.name;
+}
+
+/**
+ * Returns main editor syntax
+ */
+export function docSyntax(editor: CodeMirror.Editor): string {
+    const mode = editor.getMode();
+    return mode ? mode.name : '';
 }
 
 /**

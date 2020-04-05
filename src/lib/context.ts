@@ -2,7 +2,7 @@ import { AbbreviationContext, Options } from 'emmet';
 import { scan, createOptions, attributes, ElementType, AttributeToken, ScannerOptions } from '@emmetio/html-matcher';
 import { scan as scanCSS, TokenType } from '@emmetio/css-matcher';
 import { isQuote, isQuotedString, getContent } from './utils';
-import { isCSS, isXML, isJSX, isHTML, syntaxFromPos } from './syntax';
+import { isCSS, isXML, isJSX, isHTML, docSyntax } from './syntax';
 import getOutputOptions from './output';
 
 export interface ActivationContext extends SyntaxContext {
@@ -38,7 +38,7 @@ interface Tag {
  * abbreviations and returns context data about it
  */
 export default function getAbbreviationContext(editor: CodeMirror.Editor, pos: number): ActivationContext | undefined {
-    const syntax = syntaxFromPos(editor, pos);
+    const syntax = docSyntax(editor);
 
     if (syntax) {
         let context: SyntaxContext | undefined;
@@ -56,7 +56,7 @@ export default function getAbbreviationContext(editor: CodeMirror.Editor, pos: n
         if (context) {
             return {
                 ...context,
-                options: getOutputOptions(editor, pos)
+                options: getOutputOptions(editor, pos, context.inline)
             };
         }
     }

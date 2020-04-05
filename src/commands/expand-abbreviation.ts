@@ -18,12 +18,13 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
     // is not available
     if (tabKey && getEmmetConfig(editor).mark) {
         const tracker = getTracker(editor);
+
         if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
             runExpand(editor, tracker.abbreviation.abbr, tracker.range[0], tracker.options);
             stopTracking(editor, true);
-        } else {
-            return pass(editor);
+            return;
         }
+        return pass(editor);
     }
 
     const pos = editor.posFromIndex(caret);

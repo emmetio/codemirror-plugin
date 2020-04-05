@@ -106,7 +106,7 @@ export default class AbbreviationTracker {
 
         try {
             let parsedAbbr: MarkupAbbreviation | StylesheetAbbreviation | undefined;
-            let simple = true;
+            let simple = false;
 
             if (this.options.type === 'stylesheet') {
                 parsedAbbr = stylesheetAbbreviation(abbr);
@@ -121,7 +121,7 @@ export default class AbbreviationTracker {
                 abbr,
                 simple,
                 preview: expand(editor, parsedAbbr, previewConfig)
-            }
+            };
         } catch (error) {
             this.abbreviation = { type: 'error', abbr, error };
         }

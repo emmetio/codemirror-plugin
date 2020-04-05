@@ -1,6 +1,6 @@
 import { UserConfig } from 'emmet';
 import getEmmetConfig from '../lib/config';
-import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML } from '../lib/syntax';
+import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax } from '../lib/syntax';
 import { getCaret, substr } from '../lib/utils';
 import { JSX_PREFIX } from '../lib/emmet';
 import getAbbreviationContext from '../lib/context';
@@ -86,7 +86,7 @@ function startAbbreviationTracking(editor: CodeMirror.Editor, pos: number): Abbr
     // NB: get last 2 characters: first should be a word bound(or empty),
     // second must be abbreviation start
     const prefix = substr(editor, [Math.max(0, pos - 2), pos]);
-    const syntax = syntaxFromPos(editor, pos);
+    const syntax = docSyntax(editor);
     let start = -1
     let end = pos;
     let offset = 0;
@@ -111,10 +111,13 @@ function startAbbreviationTracking(editor: CodeMirror.Editor, pos: number): Abbr
         let options: UserConfig | undefined;
         if (isCSS(syntax) || isHTML(syntax)) {
             options = getAbbreviationContext(editor, pos);
+
             if (!options) {
                 // No valid context for known syntaxes
                 return;
             }
+
+            options.type = isCSS(options.syntax) ? 'stylesheet' : 'markup';
         }
 
         return startTracking(editor, start, end, { offset, options });

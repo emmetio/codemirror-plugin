@@ -9,6 +9,7 @@ import emmetInsertLineBreak from './commands/insert-line-break';
 import emmetWrapWithAbbreviation from './commands/wrap-with-abbreviation';
 import emmetBalance from './commands/balance';
 import emmetToggleComment from './commands/comment';
+import emmetEvaluateMath from './commands/evaluate-math';
 
 type DisposeFn = () => void;
 
@@ -32,16 +33,15 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         emmetWrapWithAbbreviation,
         emmetBalance,
         emmetBalanceInward: (editor: CodeMirror.Editor) => emmetBalance(editor, true),
-        emmetToggleComment
+        emmetToggleComment,
+        emmetEvaluateMath
     });
 
     // Track options change
     CM.defineOption('emmet', defaultConfig, (editor: CodeMirror.Editor, value: EmmetConfig) => {
         if (value.mark && !trackerDispose) {
-            console.log('Will track abbreviation');
             trackerDispose = abbreviationTracker(editor);
         } else if (!value.mark && trackerDispose) {
-            console.log('Will dispose abbreviation tracker');
             trackerDispose();
             trackerDispose = null;
         }

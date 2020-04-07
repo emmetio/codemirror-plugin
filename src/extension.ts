@@ -10,6 +10,8 @@ import emmetWrapWithAbbreviation from './commands/wrap-with-abbreviation';
 import emmetBalance from './commands/balance';
 import emmetToggleComment from './commands/comment';
 import emmetEvaluateMath from './commands/evaluate-math';
+import goToEditPoint from './commands/go-to-edit-point';
+import emmetGoToTagPair from './commands/go-to-tag-pair';
 
 type DisposeFn = () => void;
 
@@ -34,7 +36,10 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         emmetBalance,
         emmetBalanceInward: (editor: CodeMirror.Editor) => emmetBalance(editor, true),
         emmetToggleComment,
-        emmetEvaluateMath
+        emmetEvaluateMath,
+        emmetGoToNextEditPoint: (editor: CodeMirror.Editor) => goToEditPoint(editor, 1),
+        emmetGoToPreviousEditPoint: (editor: CodeMirror.Editor) => goToEditPoint(editor, -1),
+        emmetGoToTagPair,
     });
 
     // Track options change

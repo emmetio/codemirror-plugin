@@ -228,8 +228,15 @@ export function rangesEqual(a: TextRange, b: TextRange): boolean {
 /**
  * Check if range `a` fully contains range `b`
  */
-export function rangeContains(a: TextRange, b: TextRange) {
+export function rangeContains(a: TextRange, b: TextRange): boolean {
     return a[0] <= b[0] && a[1] >= b[1];
+}
+
+/**
+ * Check if given range is empty
+ */
+export function rangeEmpty(r: TextRange): boolean {
+    return r[0] === r[1];
 }
 
 /**

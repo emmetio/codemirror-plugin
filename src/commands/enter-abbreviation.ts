@@ -1,4 +1,5 @@
 import { getTracker, stopTracking, startTracking } from '../abbreviation/AbbreviationTracker';
+import { textRange } from '../lib/utils';
 
 export default function enterAbbreviationMode(editor: CodeMirror.Editor) {
     let tracker = getTracker(editor);
@@ -8,15 +9,7 @@ export default function enterAbbreviationMode(editor: CodeMirror.Editor) {
         return;
     }
 
-    const sel = editor.listSelections()[0];
-    let from = editor.indexFromPos(sel.head);
-    let to = editor.indexFromPos(sel.anchor);
-
-    if (from > to) {
-        const _from = from;
-        from = to;
-        to = _from;
-    }
+    const [from, to] = textRange(editor, editor.listSelections()[0]);
 
     tracker = startTracking(editor, from, to, { forced: true });
     if (from !== to) {

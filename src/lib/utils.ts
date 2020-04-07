@@ -10,6 +10,11 @@ export interface AbbrError {
     pos: number
 }
 
+export interface CMRange {
+    anchor: CodeMirror.Position;
+    head: CodeMirror.Position;
+}
+
 /**
  * Returns copy of region which starts and ends at non-space character
  */
@@ -199,6 +204,32 @@ export function htmlEscape(str: string): string {
  */
 export function pass(editor: CodeMirror.Editor) {
     return editor.constructor['Pass'];
+}
+
+/**
+ * Converts given CodeMirror range to text range
+ */
+export function textRange(editor: CodeMirror.Editor, range: CMRange): TextRange {
+    const head = editor.indexFromPos(range.head);
+    const anchor = editor.indexFromPos(range.anchor);
+    return [
+        Math.min(head, anchor),
+        Math.max(head, anchor)
+    ];
+}
+
+/**
+ * Check if `a` and `b` contains the same range
+ */
+export function rangesEqual(a: TextRange, b: TextRange): boolean {
+    return a[0] === b[0] && a[1] === b[1];
+}
+
+/**
+ * Check if range `a` fully contains range `b`
+ */
+export function rangeContains(a: TextRange, b: TextRange) {
+    return a[0] <= b[0] && a[1] >= b[1];
 }
 
 /**

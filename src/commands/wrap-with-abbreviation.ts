@@ -1,6 +1,6 @@
 import { TextRange } from '@emmetio/action-utils';
 import { getOptions, getTagContext, ContextTag, expand } from '../lib/emmet';
-import { getCaret, narrowToNonSpace, replaceWithSnippet, substr, errorSnippet } from '../lib/utils';
+import { getCaret, narrowToNonSpace, replaceWithSnippet, substr, errorSnippet, textRange } from '../lib/utils';
 import { docSyntax, isXML } from '../lib/syntax';
 import { lineIndent } from '../lib/output';
 
@@ -137,11 +137,5 @@ function inRange(range: TextRange, pt: number): boolean {
 }
 
 function getSelection(editor: CodeMirror.Editor): TextRange {
-    const sel = editor.listSelections()[0];
-    const head = editor.indexFromPos(sel.head);
-    const anchor = editor.indexFromPos(sel.anchor);
-    return [
-        Math.min(head, anchor),
-        Math.max(head, anchor)
-    ];
+    return textRange(editor, editor.listSelections()[0]);
 }

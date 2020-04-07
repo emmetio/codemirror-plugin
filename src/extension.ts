@@ -7,6 +7,7 @@ import emmetResetAbbreviation from './commands/reset-abbreviation'
 import emmetEnterAbbreviationMode from './commands/enter-abbreviation';
 import emmetInsertLineBreak from './commands/insert-line-break';
 import emmetWrapWithAbbreviation from './commands/wrap-with-abbreviation';
+import emmetBalance from './commands/balance';
 
 type DisposeFn = () => void;
 
@@ -27,7 +28,9 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         emmetResetAbbreviation,
         emmetEnterAbbreviationMode,
         emmetInsertLineBreak,
-        emmetWrapWithAbbreviation
+        emmetWrapWithAbbreviation,
+        emmetBalance,
+        emmetBalanceInward: (editor: CodeMirror.Editor) => emmetBalance(editor, true)
     });
 
     // Track options change

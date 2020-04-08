@@ -12,6 +12,10 @@ import emmetToggleComment from './commands/comment';
 import emmetEvaluateMath from './commands/evaluate-math';
 import goToEditPoint from './commands/go-to-edit-point';
 import emmetGoToTagPair from './commands/go-to-tag-pair';
+import incrementNumber from './commands/inc-dec-number';
+import emmetRemoveTag from './commands/remove-tag';
+import selectItem from './commands/select-item';
+import emmetSplitJoinTag from './commands/split-join-tag';
 
 type DisposeFn = () => void;
 
@@ -40,6 +44,16 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         emmetGoToNextEditPoint: (editor: CodeMirror.Editor) => goToEditPoint(editor, 1),
         emmetGoToPreviousEditPoint: (editor: CodeMirror.Editor) => goToEditPoint(editor, -1),
         emmetGoToTagPair,
+        emmetIncrementNumber1: (editor: CodeMirror.Editor) => incrementNumber(editor, 1),
+        emmetIncrementNumber01: (editor: CodeMirror.Editor) => incrementNumber(editor, .1),
+        emmetIncrementNumber10: (editor: CodeMirror.Editor) => incrementNumber(editor, 10),
+        emmetDecrementNumber1: (editor: CodeMirror.Editor) => incrementNumber(editor, -1),
+        emmetDecrementNumber01: (editor: CodeMirror.Editor) => incrementNumber(editor, -.1),
+        emmetDecrementNumber10: (editor: CodeMirror.Editor) => incrementNumber(editor, -10),
+        emmetRemoveTag,
+        emmetSelectNextItem: (editor: CodeMirror.Editor) => selectItem(editor),
+        emmetSelectPreviousItem: (editor: CodeMirror.Editor) => selectItem(editor, true),
+        emmetSplitJoinTag,
     });
 
     // Track options change

@@ -122,3 +122,18 @@
     padding-top: 10px;
     font-size: 11px;
 }
+
+.emmet-open-tag, .emmet-close-tag {
+    text-decoration: underline;
+}
+
+.emmet-tag-preview {
+    background: #117700;
+    color: #ffffff;
+    border-radius: 2px;
+    padding: 2px 4px;
+    font-size: 0.8em;
+    opacity: 0.6;
+    margin-top: -16px;
+    margin-left: 2px;
+}

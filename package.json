@@ -24,14 +24,14 @@
     "example.html"
   ],
   "devDependencies": {
-    "@emmetio/action-utils": "^1.0.1",
+    "@emmetio/action-utils": "^1.0.3",
     "@emmetio/css-matcher": "^0.1.1",
     "@emmetio/html-matcher": "^1.2.0",
     "@emmetio/math-expression": "^1.0.1",
     "@types/codemirror": "0.0.90",
     "codemirror": "^5.52.2",
     "emmet": "^2.0.0-rc.13",
-    "rollup": "^2.3.2",
+    "rollup": "^2.3.4",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.27.0",
     "rollup-plugin-uglify": "^6.0.4",

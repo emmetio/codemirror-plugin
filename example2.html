@@ -34,35 +34,6 @@
 	.cm-delimit {
 		color: #fa4;
 	}
-
-	/* Emmet completions styling */
-	.emmet-label {
-		display: inline-block;
-		min-width: 100px;
-	}
-
-	.emmet-preview {
-		margin-left: 15px;
-		opacity: 0.6;
-		display: inline-block;
-		max-width: 300px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.emmet-preview__expand {
-		display: block;
-		margin-left: 0;
-		max-width: 400px;
-		max-height: 5.5em;
-		white-space: pre;
-	}
-
-	.emmet-open-tag,
-	.emmet-close-tag {
-		border-bottom: 1px dotted red;
-	}
 	</style>
 </head>
 <body>
@@ -132,6 +103,9 @@
 				'Shift-Ctrl-Right': 'emmetSelectNextItem',
 				'Shift-Ctrl-Left': 'emmetSelectPreviousItem',
 				// 'Ctrl-Space': 'autocomplete',
+			},
+			emmet: {
+				markTagPairs: 'name'
 			}
 		});
 

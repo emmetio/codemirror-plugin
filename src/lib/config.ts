@@ -7,11 +7,18 @@ export interface EmmetConfig {
     /** Enables preview of marked abbreviation */
     preview: boolean;
 
-    /** Allow automatic tag pair rename */
-    autoRenameTags: boolean;
-
     /** Mark HTML tag pairs in editor */
     markTagPairs: boolean;
+
+    /**
+     * Displays open tag preview when caret is inside its matching closing tag.
+     * Preview is displayed only if open tag has attributes.
+     * Works only if `markTagPairs` is enabled
+     */
+    previewOpenTag: boolean;
+
+    /** Allow automatic tag pair rename, works only if `markTagPairs` is enabled */
+    autoRenameTags: boolean;
 
     /** Quotes to use in generated HTML attribute values */
     attributeQuotes: 'single' | 'double';
@@ -52,6 +59,7 @@ export const defaultConfig: EmmetConfig = {
     preview: true,
     autoRenameTags: true,
     markTagPairs: true,
+    previewOpenTag: true,
     attributeQuotes: 'double',
     markupStyle: 'html',
     comments: false,

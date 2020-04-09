@@ -1,6 +1,7 @@
 import CodeMirror from 'codemirror';
 import { defaultConfig, EmmetConfig } from './lib/config';
 import abbreviationTracker from './abbreviation';
+import matchTags from './lib/match-tags';
 
 import expandAbbreviation from './commands/expand-abbreviation';
 import emmetResetAbbreviation from './commands/reset-abbreviation'
@@ -28,6 +29,7 @@ type DisposeFn = () => void;
  */
 export default function registerEmmetExtension(CM: typeof CodeMirror) {
     let trackerDispose: DisposeFn | null = null;
+    let tagMatchDispose: DisposeFn | null = null;
 
     // Register Emmet commands
     Object.assign(CM.commands, {
@@ -63,6 +65,13 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         } else if (!value.mark && trackerDispose) {
             trackerDispose();
             trackerDispose = null;
+        }
+
+        if (value.markTagPairs && !tagMatchDispose) {
+            tagMatchDispose = matchTags(editor);
+        } else if (!value.markTagPairs && tagMatchDispose) {
+            tagMatchDispose();
+            tagMatchDispose = null;
         }
     });
 }

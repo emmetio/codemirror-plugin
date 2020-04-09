@@ -28,18 +28,11 @@ export default function markTagMatches(editor: CodeMirror.Editor) {
      * Displays tag preview as given location, if possible
      */
     function showTagPreview(ed: CodeMirror.Editor, pos: number, preview: string) {
-        if (tagPreview && tagPreview.dataset.pos === String(pos)) {
-            // Already have preview at given location
-            return;
+        // Check if we already have preview at given location
+        if (!tagPreview || tagPreview.dataset.pos !== String(pos)) {
+            hidePreview();
+            tagPreview = createPreviewWidget(ed, pos, preview);
         }
-
-        hidePreview();
-        tagPreview = document.createElement('div');
-        tagPreview.className = 'emmet-tag-preview';
-        tagPreview.innerText = preview;
-        tagPreview.dataset.pos = String(pos);
-
-        ed.addWidget(ed.posFromIndex(pos), tagPreview, false);
     }
 
     function hidePreview() {
@@ -192,6 +185,16 @@ function updateTag(editor: CodeMirror.Editor, source: CMMarkRange, dest: CMMarkR
     }
 
     return name !== newName;
+}
+
+function createPreviewWidget(editor: CodeMirror.Editor, pos: number, preview: string): HTMLElement {
+    const elem = document.createElement('div');
+    elem.className = 'emmet-tag-preview';
+    elem.innerText = preview;
+    elem.dataset.pos = String(pos);
+
+    editor.addWidget(editor.posFromIndex(pos), elem, false);
+    return elem;
 }
 
 /**

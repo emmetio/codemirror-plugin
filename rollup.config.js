@@ -14,11 +14,11 @@ export default [{
     input: './src/extension.ts',
     plugins: plugins(),
     output: [{
-        file: 'dist/emmet-codemirror-plugin.cjs.js',
+        file: 'dist/extension.cjs.js',
         format: 'cjs',
         sourcemap: true
     }, {
-        file: 'dist/emmet-codemirror-plugin.es.js',
+        file: 'dist/extension.es.js',
         format: 'es',
         sourcemap: true
     }]
@@ -26,7 +26,7 @@ export default [{
     input: './src/browser.ts',
     plugins: plugins().concat(process.env.NODE_ENV === 'production' ? terser() : null),
     output: [{
-        file: 'dist/emmet-codemirror-plugin.js',
+        file: 'dist/browser.js',
         format: 'umd',
         sourcemap: true
     }]

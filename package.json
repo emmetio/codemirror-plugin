@@ -2,8 +2,8 @@
   "name": "@emmetio/codemirror-plugin",
   "version": "0.5.4",
   "description": "Plugin for CodeMirror web editor",
-  "main": "dist/emmet-codemirror-plugin.cjs.js",
-  "module": "dist/emmet-codemirror-plugin.es.js",
+  "main": "dist/extension.cjs.js",
+  "module": "dist/extension.es.js",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -wc"

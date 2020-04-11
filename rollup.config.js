@@ -1,5 +1,6 @@
 import typescript from 'rollup-plugin-typescript2';
 import nodeResolve from 'rollup-plugin-node-resolve';
+import { terser } from 'rollup-plugin-terser';
 
 function plugins() {
     return [nodeResolve(), typescript({
@@ -23,7 +24,7 @@ export default [{
     }]
 }, {
     input: './src/browser.ts',
-    plugins: plugins(),
+    plugins: plugins().concat(process.env.NODE_ENV === 'production' ? terser() : null),
     output: [{
         file: 'dist/emmet-codemirror-plugin.js',
         format: 'umd',

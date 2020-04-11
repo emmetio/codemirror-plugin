@@ -137,3 +137,17 @@
     margin-top: -16px;
     margin-left: 2px;
 }
+
+/** Sample Emmet abbreviation editor */
+
+.emmet-abbreviation-editor .CodeMirror {
+    height: 2em;
+    line-height: 2;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+}
+
+.emmet-abbreviation-editor .CodeMirror-lines {
+    padding: 0;
+}

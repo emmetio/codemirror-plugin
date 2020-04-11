@@ -24,10 +24,13 @@
     "example.html"
   ],
   "devDependencies": {
+    "@emmetio/abbreviation": "^2.0.0-rc.8",
     "@emmetio/action-utils": "^1.0.3",
+    "@emmetio/css-abbreviation": "^2.0.0-rc.6",
     "@emmetio/css-matcher": "^0.1.1",
     "@emmetio/html-matcher": "^1.2.0",
     "@emmetio/math-expression": "^1.0.1",
+    "@emmetio/scanner": "0.0.7",
     "@types/codemirror": "0.0.90",
     "codemirror": "^5.52.2",
     "emmet": "^2.0.0-rc.13",

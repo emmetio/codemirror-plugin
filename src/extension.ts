@@ -2,6 +2,8 @@ import CodeMirror from 'codemirror';
 import { defaultConfig, EmmetConfig } from './lib/config';
 import abbreviationTracker from './abbreviation';
 import matchTags from './lib/match-tags';
+import markupMode from './mode/markup';
+import snippetMode from './mode/snippet';
 
 import expandAbbreviation from './commands/expand-abbreviation';
 import emmetResetAbbreviation from './commands/reset-abbreviation'
@@ -74,4 +76,7 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
             tagMatchDispose = null;
         }
     });
+
+    CM.defineMode('emmet-abbreviation', markupMode);
+    CM.defineMode('emmet-snippet', snippetMode);
 }

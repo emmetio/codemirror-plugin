@@ -32,13 +32,24 @@
     border-radius: 3px;
 }
 
-.emmet-abbreviation-preview-snippet {
+.emmet-abbreviation-preview .CodeMirror {
     font-size: 11px;
-    padding: 5px;
+    height: auto;
     max-width: 400px;
     max-height: 300px;
-    overflow: auto;
-    white-space: pre;
+    border: none;
+}
+
+.emmet-abbreviation-preview:not(.has-error) .emmet-abbreviation-preview-error {
+    display: none;
+}
+
+.emmet-abbreviation-preview.has-error .CodeMirror {
+    display: none;
+}
+
+.emmet-abbreviation-preview .CodeMirror-cursors {
+    visibility: hidden !important;
 }
 
 .emmet-abbreviation-preview .emmet-error-snippet-message {
@@ -145,7 +156,7 @@
     line-height: 2;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .emmet-abbreviation-editor .CodeMirror-lines {

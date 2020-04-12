@@ -1,6 +1,6 @@
 import { UserConfig, markupAbbreviation, MarkupAbbreviation, stylesheetAbbreviation, StylesheetAbbreviation } from 'emmet';
 import { TextRange } from '@emmetio/action-utils';
-import { substr, htmlEscape, toRange, getCaret, AbbrError, errorSnippet } from '../lib/utils';
+import { substr, toRange, getCaret, AbbrError, errorSnippet } from '../lib/utils';
 import { getOptions, expand } from '../lib/emmet';
 import getEmmetConfig from '../lib/config';
 
@@ -49,7 +49,7 @@ export default class AbbreviationTracker {
     public options: UserConfig | undefined;
 
     private marker: CodeMirror.TextMarker | null = null;
-    private preview: HTMLElement | null = null;
+    private preview: CodeMirror.Editor | null = null;
     private forcedMarker: HTMLElement | null = null;
 
     constructor(start: number, pos: number, length: number, public forced = false) {
@@ -156,24 +156,43 @@ export default class AbbreviationTracker {
         }
 
         let content: string | undefined;
+        let isError = false;
+
         if (this.abbreviation) {
             if (this.abbreviation.type === 'error') {
-                const { error } = this.abbreviation;
-                content = errorSnippet(error);
+                content = errorSnippet(this.abbreviation.error);
+                isError = true;
             } else if (this.forced || !this.abbreviation.simple) {
-                const snippet = htmlEscape(this.abbreviation.preview);
-                content = `<div class="${previewClass}-snippet">${snippet}</div>`;
+                content = this.abbreviation.preview;
             }
         }
 
         if (content) {
             if (!this.preview) {
-                this.preview = document.createElement('div');
-                this.preview.className = previewClass;
+                const previewElem = document.createElement('div');
+                previewElem.className = previewClass;
+
                 const pos = editor.posFromIndex(this.range[0]);
-                editor.addWidget(pos, this.preview, false);
+                editor.addWidget(pos, previewElem, false);
+                // @ts-ignore
+                this.preview = new editor.constructor(previewElem, {
+                    mode: editor.getOption('mode'),
+                    readOnly: 'nocursor',
+                    lineNumbers: false
+                }) as CodeMirror.Editor;
+
+                const errElement = document.createElement('div');
+                errElement.className = `${previewClass}-error`;
+                previewElem.appendChild(errElement);
             }
-            this.preview.innerHTML = content;
+
+            const wrapper = this.preview.getWrapperElement().parentElement!;
+            wrapper.classList.toggle('has-error', isError);
+            if (isError) {
+                wrapper.querySelector(`.${previewClass}-error`)!.innerHTML = content;
+            } else {
+                this.preview.setValue(content);
+            }
         } else {
             this.hidePreview();
         }
@@ -184,7 +203,7 @@ export default class AbbreviationTracker {
      */
     hidePreview() {
         if (this.preview) {
-            this.preview.remove();
+            this.preview.getWrapperElement().parentElement!.remove();
             this.preview = null;
         }
     }

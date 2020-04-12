@@ -330,7 +330,14 @@ export function handleSelectionChange(editor: CodeMirror.Editor, caret = getCare
  * may not be displayed to user as preview to reduce distraction
  */
 function isSimpleMarkupAbbreviation(abbr: MarkupAbbreviation): boolean {
-    return !abbr.children.length || (abbr.children.length == 1 && !abbr.children[0].children.length);
+    if (abbr.children.length === 1 && !abbr.children[0].children.length) {
+        // Single element: might be a HTML element or text snippet
+        const first = abbr.children[0];
+        // XXX silly check for common snippets like `!`. Should read contents
+        // of expanded abbreviation instead
+        return !first.name || /^[a-z]/.test(first.name);
+    }
+    return !abbr.children.length;
 }
 
 function getPreviewConfig(config: UserConfig): UserConfig {

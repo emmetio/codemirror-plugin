@@ -50,10 +50,12 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
     };
 
     editor.on('change', onChange);
+    editor.on('focus', onSelectionChange);
     editor.on('cursorActivity', onSelectionChange);
 
     return () => {
         editor.off('change', onChange);
+        editor.off('focus', onSelectionChange);
         editor.off('cursorActivity', onSelectionChange);
     };
 }

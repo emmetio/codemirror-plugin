@@ -106,7 +106,9 @@ export default class AbbreviationTracker {
             if (this.options.type === 'stylesheet') {
                 parsedAbbr = stylesheetAbbreviation(abbr);
             } else {
-                parsedAbbr = markupAbbreviation(abbr);
+                parsedAbbr = markupAbbreviation(abbr, {
+                    jsx: this.options.syntax === 'jsx'
+                });
                 simple = isSimpleMarkupAbbreviation(parsedAbbr);
             }
 

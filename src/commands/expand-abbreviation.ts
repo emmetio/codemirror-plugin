@@ -1,4 +1,5 @@
 import { UserConfig } from 'emmet';
+import { TextRange } from '@emmetio/action-utils';
 import { pass, getCaret, replaceWithSnippet } from '../lib/utils';
 import getEmmetConfig from '../lib/config';
 import { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
@@ -20,7 +21,7 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
         const tracker = getTracker(editor);
 
         if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
-            runExpand(editor, tracker.abbreviation.abbr, tracker.range[0], tracker.options);
+            runExpand(editor, tracker.abbreviation.abbr, tracker.range, tracker.options);
             stopTracking(editor, true);
             return;
         }
@@ -33,7 +34,7 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
     const abbr = extract(line, pos.ch, syntax);
 
     if (abbr) {
-        const abbrStart = caret - (pos.ch - abbr.start);
+        const offset = caret - pos.ch;
         let options: UserConfig | undefined;
         if (isCSS(syntax) || isHTML(syntax)) {
             options = getAbbreviationContext(editor, caret);
@@ -41,14 +42,14 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
                 return tabKey ? pass(editor) : null;
             }
         } else {
-            options = getOptions(editor, abbrStart);
+            options = getOptions(editor, offset + abbr.start);
         }
 
-        runExpand(editor, abbr.abbreviation, abbrStart, options);
+        runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
     }
 }
 
-function runExpand(editor: CodeMirror.Editor, abbr: string, pos: number, options?: UserConfig) {
+function runExpand(editor: CodeMirror.Editor, abbr: string, range: TextRange, options?: UserConfig) {
     const snippet = expand(editor, abbr, options);
-    replaceWithSnippet(editor, [pos, pos + abbr.length], snippet);
+    replaceWithSnippet(editor, range, snippet);
 }

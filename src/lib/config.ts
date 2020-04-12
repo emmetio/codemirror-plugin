@@ -59,7 +59,7 @@ export const defaultConfig: EmmetConfig = {
     preview: true,
     autoRenameTags: true,
     markTagPairs: true,
-    previewOpenTag: true,
+    previewOpenTag: false,
     attributeQuotes: 'double',
     markupStyle: 'html',
     comments: false,
@@ -67,10 +67,10 @@ export const defaultConfig: EmmetConfig = {
     bem: false
 };
 
-export default function getEmmetConfig(editor: CodeMirror.Editor): EmmetConfig {
-    return {
-        ...defaultConfig,
+export default function getEmmetConfig(editor: CodeMirror.Editor, opt?: Partial<EmmetConfig>): EmmetConfig {
+    if (!opt) {
         // @ts-ignore Bypass limited options, defined in typings
-        ...editor.getOption('emmet')
-    };
+        opt = editor.getOption('emmet');
+    }
+    return { ...defaultConfig, ...opt };
 }

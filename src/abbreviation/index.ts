@@ -19,7 +19,7 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
 
     const onChange = (ed: CodeMirror.Editor) => {
         const pos = getCaret(ed);
-        let tracker = handleChange(editor);
+        let tracker = handleChange(ed);
 
         if (!tracker && lastPos !== null && lastPos === pos - 1 && allowTracking(ed, pos)) {
             tracker = startAbbreviationTracking(ed, pos);

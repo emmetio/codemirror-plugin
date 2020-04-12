@@ -1,5 +1,5 @@
 import CodeMirror from 'codemirror';
-import { defaultConfig, EmmetConfig } from './lib/config';
+import getEmmetConfig, { defaultConfig, EmmetConfig } from './lib/config';
 import abbreviationTracker from './abbreviation';
 import matchTags from './lib/match-tags';
 import markupMode from './mode/markup';
@@ -22,6 +22,13 @@ import emmetSplitJoinTag from './commands/split-join-tag';
 
 type DisposeFn = () => void;
 
+interface EmmetState {
+    tracker?: DisposeFn | null;
+    tagMatch?: DisposeFn | null;
+}
+
+const stateKey = '$$emmet';
+
 /**
  * Registers Emmet extension on given CodeMirror constructor.
  * This file is designed to be imported somehow into the app (CommonJS, ES6,
@@ -30,9 +37,6 @@ type DisposeFn = () => void;
  * `browser.js` instead
  */
 export default function registerEmmetExtension(CM: typeof CodeMirror) {
-    let trackerDispose: DisposeFn | null = null;
-    let tagMatchDispose: DisposeFn | null = null;
-
     // Register Emmet commands
     Object.assign(CM.commands, {
         emmetExpandAbbreviation: (editor: CodeMirror.Editor) => expandAbbreviation(editor, true),
@@ -62,18 +66,25 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
 
     // Track options change
     CM.defineOption('emmet', defaultConfig, (editor: CodeMirror.Editor, value: EmmetConfig) => {
-        if (value.mark && !trackerDispose) {
-            trackerDispose = abbreviationTracker(editor);
-        } else if (!value.mark && trackerDispose) {
-            trackerDispose();
-            trackerDispose = null;
+        if (!editor[stateKey]) {
+            editor[stateKey] = {};
         }
 
-        if (value.markTagPairs && !tagMatchDispose) {
-            tagMatchDispose = matchTags(editor);
-        } else if (!value.markTagPairs && tagMatchDispose) {
-            tagMatchDispose();
-            tagMatchDispose = null;
+        const state = editor[stateKey] as EmmetState;
+        value = getEmmetConfig(editor, value);
+
+        if (value.mark && !state.tracker) {
+            state.tracker = abbreviationTracker(editor);
+        } else if (!value.mark && state.tracker) {
+            state.tracker();
+            state.tracker = null;
+        }
+
+        if (value.markTagPairs && !state.tagMatch) {
+            state.tagMatch = matchTags(editor);
+        } else if (!value.markTagPairs && state.tagMatch) {
+            state.tagMatch();
+            state.tagMatch = null;
         }
     });
 

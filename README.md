@@ -26,6 +26,7 @@ const editor = CodeMirror.fromTextArea(document.getElementById('code'), {
     mode : "text/html",
     extraKeys: {
         'Tab': 'emmetExpandAbbreviation',
+        'Esc': 'emmetResetAbbreviation',
         'Enter': 'emmetInsertLineBreak'
     }
 });
@@ -46,6 +47,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
     mode : "text/html",
     extraKeys: {
         'Tab': 'emmetExpandAbbreviation',
+        'Esc': 'emmetResetAbbreviation',
         'Enter': 'emmetInsertLineBreak'
     }
 });
@@ -56,7 +58,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 
 Emmet extension can _track abbreviations_ that user enters in some known syntaxes like HTML and CSS. When user enters something that looks like Emmet abbreviation, extension starts abbreviation tracking (adds `emmet-abbreviation` class to a text fragment). WHen abbreviation becomes _complex_ (expands to more that one element), it displays abbreviation preview:
 
-TODO show preview
+![Emmet abbreviation example](./example/emmet-expand.gif)
 
 Run `emmetExpandAbbreviation` command to expand tracked abbreviation or `emmetResetAbbreviation` to reset it. Suggested key bindings are <kbd>Tab</kbd> for `emmetExpandAbbreviation` and <kbd>Esc</kbd> for `emmetResetAbbreviation`.
 
@@ -70,7 +72,7 @@ In case if abbreviation tracking is unavailable or you want to give user an oppo
 
 In order to not distract user with unexpected abbreviation tracking, in JSX syntax Emmet requires to prefix abbreviation with `<` to provide more natural context where JSX markup is required.
 
-TODO JSX preview
+![Emmet JSX example](./example/emmet-jsx.gif)
 
 ## Tag pair marking and renaming
 
@@ -78,7 +80,7 @@ Extension is able to mark paired open and close HTML tags in editor: it adds `em
 
 When tag pair tag marking is enabled, it’s possible to automatically rename tag pair when you update open or close tag:
 
-TODO tag match and rename
+![Emmet tag pair example](./example/emmet-tag-pair.gif)
 
 ## Commands
 

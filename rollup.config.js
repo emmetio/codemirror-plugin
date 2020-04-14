@@ -1,41 +1,33 @@
-'use strict';
-
+import typescript from 'rollup-plugin-typescript2';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import buble from 'rollup-plugin-buble';
-import uglify from 'rollup-plugin-uglify';
+import { terser } from 'rollup-plugin-terser';
+
+function plugins() {
+    return [nodeResolve(), typescript({
+        tsconfigOverride: {
+            compilerOptions: { module: 'esnext' }
+        }
+    })];
+}
 
 export default [{
-	input: './extension.js',
-	external: [
-		'@emmetio/config',
-		'@emmetio/expand-abbreviation',
-		'@emmetio/extract-abbreviation',
-		'@emmetio/css-snippets-resolver',
-		'@emmetio/html-matcher',
-		'@emmetio/stream-reader',
-		'@emmetio/stream-reader-utils',
-		'@emmetio/field-parser'
-	],
-	output: [{
-		format: 'cjs',
-		sourcemap: true,
-		file: 'dist/emmet-codemirror-plugin.cjs.js'
-	}, {
-		format: 'es',
-		sourcemap: true,
-		file: 'dist/emmet-codemirror-plugin.es.js'
-	}]
+    input: './src/extension.ts',
+    plugins: plugins(),
+    output: [{
+        file: 'dist/extension.cjs.js',
+        format: 'cjs',
+        sourcemap: true
+    }, {
+        file: 'dist/extension.es.js',
+        format: 'es',
+        sourcemap: true
+    }]
 }, {
-	input: './browser.js',
-	plugins: [
-		nodeResolve(),
-		buble(),
-		uglify()
-	],
-	output: {
-		name: 'emmetCodeMirrorPlugin',
-		format: 'umd',
-		file: 'dist/emmet-codemirror-plugin.js',
-		sourcemap: 'dist/emmet-codemirror-plugin.js.map'
-	}
+    input: './src/browser.ts',
+    plugins: plugins().concat(process.env.NODE_ENV === 'production' ? terser() : null),
+    output: [{
+        file: 'dist/browser.js',
+        format: 'umd',
+        sourcemap: true
+    }]
 }];

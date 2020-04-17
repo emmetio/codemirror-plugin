@@ -1,4 +1,5 @@
 import { ParseModeError } from './types';
+import { error } from './markup';
 
 interface EmmetSnippetModeState {
     parseError?: ParseModeError;
@@ -24,9 +25,7 @@ export default function snippetNameMode(): CodeMirror.Mode<EmmetSnippetModeState
                 }
             }
 
-            state.parseError = new Error('Unexpected character');
-            state.parseError.ch = stream.pos;
-            stream.pos = stream.string.length;
+            state.parseError = error('Unexpected character', stream);
             return 'invalidchar';
         }
     };

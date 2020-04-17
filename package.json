@@ -4,6 +4,7 @@
   "description": "Plugin for CodeMirror web editor",
   "main": "dist/extension.cjs.js",
   "module": "dist/extension.es.js",
+  "types": "dist/extension.d.ts",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -wc",

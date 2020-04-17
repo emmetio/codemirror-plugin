@@ -91,3 +91,5 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
     CM.defineMode('emmet-abbreviation', markupMode);
     CM.defineMode('emmet-snippet', snippetMode);
 }
+
+export { EmmetConfig };

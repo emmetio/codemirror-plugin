@@ -1,6 +1,6 @@
 import Scanner from '@emmetio/scanner';
 import { getToken, parse, BracketType, Bracket, AllTokens } from '@emmetio/abbreviation';
-import { ParseModeError } from './types';
+import { last, unexpectedCharacter, error, ParseModeError } from './utils';
 
 type Context = { [ctx in BracketType]: number } & { quote: number };
 
@@ -130,20 +130,4 @@ function getTokenName(token: AllTokens, state: EmmetMarkupModeState): string {
     }
 
     return '';
-}
-
-export function error(message: string, scanner: Scanner | CodeMirror.StringStream): ParseModeError {
-    const err = new Error(message) as ParseModeError;
-    err.ch = scanner.pos;
-    return err;
-}
-
-function unexpectedCharacter(stream: CodeMirror.StringStream, state: EmmetMarkupModeState, message = 'Unexpected character'): string {
-    state.parseError = error(message.replace(/\s+at\s+\d+$/, ''), stream);
-    stream.skipToEnd();
-    return 'invalidchar';
-}
-
-function last<T>(arr: T[]): T {
-    return arr[arr.length - 1];
 }

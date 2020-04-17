@@ -1,5 +1,4 @@
-import { ParseModeError } from './types';
-import { error } from './markup';
+import { error, ParseModeError } from './utils';
 
 interface EmmetSnippetModeState {
     parseError?: ParseModeError;

@@ -3,6 +3,7 @@ import getEmmetConfig, { defaultConfig, EmmetConfig } from './lib/config';
 import abbreviationTracker from './abbreviation';
 import matchTags from './lib/match-tags';
 import markupMode from './mode/markup';
+import stylesheetMode from './mode/stylesheet';
 import snippetMode from './mode/snippet';
 
 import expandAbbreviation from './commands/expand-abbreviation';
@@ -89,6 +90,7 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
     });
 
     CM.defineMode('emmet-abbreviation', markupMode);
+    CM.defineMode('emmet-css-abbreviation', stylesheetMode);
     CM.defineMode('emmet-snippet', snippetMode);
 }
 

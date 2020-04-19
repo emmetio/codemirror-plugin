@@ -18,9 +18,7 @@ export default function getOutputOptions(editor: CodeMirror.Editor, pos?: number
 
     if (syntax === 'html') {
         opt['output.selfClosingStyle'] = config.markupStyle;
-        if (config.markupStyle !== 'html') {
-            opt['output.compactBoolean'] = false;
-        }
+        opt['output.compactBoolean'] = config.markupStyle === 'html';
     }
 
     if (isHTML(syntax)) {

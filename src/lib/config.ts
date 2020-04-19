@@ -1,5 +1,9 @@
 import { GlobalConfig } from 'emmet';
 
+export interface EmmetEditorOptions extends CodeMirror.EditorConfiguration {
+    emmet: EmmetConfig;
+}
+
 export interface EmmetConfig {
     /** Enables abbreviation marking in editor. Works in known syntaxes only */
     mark: boolean;
@@ -49,6 +53,12 @@ export interface EmmetConfig {
      * shortened to `ul.nav._secondary>li.-item` with this option enabled.
      */
     bem: boolean;
+
+    /**
+     * For stylesheet abbreviations, generate short HEX color values, if possible.
+     * For example, `c#0` will be expanded to `color: #000;` instead of `color: #000000`.
+     */
+    shortHex?: boolean;
 
     /** Advanced Emmet config */
     config?: GlobalConfig;

@@ -49,6 +49,10 @@ export function syntaxInfo(editor: CodeMirror.Editor, pos: number): SyntaxInfo {
 export function syntaxFromPos(editor: CodeMirror.Editor, pos: number): string | undefined {
     const p = editor.posFromIndex(pos);
     const mode = editor.getModeAt(p);
+    if (mode && mode.name === 'xml') {
+        // XML mode is used for styling HTML as well
+        return mode.configuration || mode.name;
+    }
     return mode && mode.name;
 }
 
@@ -57,7 +61,10 @@ export function syntaxFromPos(editor: CodeMirror.Editor, pos: number): string | 
  */
 export function docSyntax(editor: CodeMirror.Editor): string {
     const mode = editor.getMode();
-    return mode ? mode.name : '';
+    if (mode) {
+        return mode.name === 'htmlmixed' ? 'html' : (mode.name || '');
+    }
+    return '';
 }
 
 /**

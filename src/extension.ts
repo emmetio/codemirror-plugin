@@ -1,5 +1,6 @@
+import { UserConfig } from 'emmet';
 import CodeMirror from 'codemirror';
-import getEmmetConfig, { defaultConfig, EmmetConfig } from './lib/config';
+import getEmmetConfig, { defaultConfig, EmmetConfig, EmmetEditorOptions } from './lib/config';
 import abbreviationTracker from './abbreviation';
 import matchTags from './lib/match-tags';
 import markupMode from './mode/markup';
@@ -20,12 +21,24 @@ import incrementNumber from './commands/inc-dec-number';
 import emmetRemoveTag from './commands/remove-tag';
 import selectItem from './commands/select-item';
 import emmetSplitJoinTag from './commands/split-join-tag';
+import { expand, getOptions } from './lib/emmet';
 
 type DisposeFn = () => void;
 
 interface EmmetState {
     tracker?: DisposeFn | null;
     tagMatch?: DisposeFn | null;
+}
+
+export interface EmmetEditor extends CodeMirror.Editor {
+    /**
+     * Expands given abbreviation with options, defined for current editor
+     */
+    expandAbbreviation(abbr: string, options?: UserConfig): string;
+    /**
+     * Returns Emmet config for given location in editor
+     */
+    emmetOptions(pos?: number, withContext?: boolean): UserConfig;
 }
 
 const stateKey = '$$emmet';
@@ -92,6 +105,16 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
     CM.defineMode('emmet-abbreviation', markupMode);
     CM.defineMode('emmet-css-abbreviation', stylesheetMode);
     CM.defineMode('emmet-snippet', snippetMode);
+
+    // Expose `expandAbbreviation` method to all instances to allow
+    // programmatic usage based on current Emmet options
+    CM.defineExtension('expandAbbreviation', function (this: CodeMirror.Editor, abbr: string, options = getOptions(this, 0)) {
+        return expand(this, abbr, options);
+    });
+
+    CM.defineExtension('emmetOptions', function (this: CodeMirror.Editor, pos = 0, withContext?: boolean) {
+        return getOptions(this, pos, withContext);
+    });
 }
 
-export { EmmetConfig };
+export { EmmetConfig, EmmetEditorOptions };

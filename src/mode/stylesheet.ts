@@ -1,5 +1,5 @@
 import Scanner from '@emmetio/scanner';
-import { getToken, parser, AllTokens } from '@emmetio/css-abbreviation';
+import { getToken, AllTokens } from '@emmetio/css-abbreviation';
 import { unexpectedCharacter, ParseModeError } from './utils';
 
 interface EmmetStylesheetModeState {
@@ -42,15 +42,7 @@ export default function emmetAbbreviationMode(): CodeMirror.Mode<EmmetStylesheet
 
             const name = getTokenName(token, state);
             state.tokens.push(token);
-
-            // Validate current abbreviation
-            try {
-                parser(state.tokens);
-                return name;
-            } catch (err) {
-                stream.pos = err.pos;
-                return unexpectedCharacter(stream, state, err.message);
-            }
+            return name;
         }
     }
 }

@@ -1,5 +1,5 @@
 import Scanner from '@emmetio/scanner';
-import { getToken, parse, BracketType, Bracket, AllTokens } from '@emmetio/abbreviation';
+import { getToken, BracketType, Bracket, AllTokens } from '@emmetio/abbreviation';
 import { last, unexpectedCharacter, error, ParseModeError } from './utils';
 
 type Context = { [ctx in BracketType]: number } & { quote: number };
@@ -64,15 +64,7 @@ export default function emmetAbbreviationMode(): CodeMirror.Mode<EmmetMarkupMode
 
             const name = getTokenName(token, state);
             state.tokens.push(token);
-
-            // Validate current abbreviation
-            try {
-                parse(state.tokens);
-                return name;
-            } catch (err) {
-                stream.pos = err.pos;
-                return unexpectedCharacter(stream, state, err.message);
-            }
+            return name;
         }
     }
 }
@@ -124,7 +116,7 @@ function getTokenName(token: AllTokens, state: EmmetMarkupModeState): string {
         case 'RepeaterPlaceholder':
             return 'meta';
         case 'Quote':
-            return 'quote';
+            return 'string';
         case 'RepeaterNumber':
             return 'number';
     }

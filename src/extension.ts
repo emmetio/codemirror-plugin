@@ -1,4 +1,6 @@
 import { UserConfig } from 'emmet';
+import { parse as parseMarkup, tokenize as tokenizeMarkup, MarkupAbbreviation } from '@emmetio/abbreviation';
+import { parser as parseStylesheet, tokenize as tokenizeStylesheet, CSSAbbreviation } from '@emmetio/css-abbreviation';
 import CodeMirror from 'codemirror';
 import getEmmetConfig, { defaultConfig, EmmetConfig, EmmetEditorOptions } from './lib/config';
 import abbreviationTracker from './abbreviation';
@@ -39,6 +41,10 @@ export interface EmmetEditor extends CodeMirror.Editor {
      * Returns Emmet config for given location in editor
      */
     emmetOptions(pos?: number, withContext?: boolean): UserConfig;
+
+    /** Parses given abbreviation to AST or throws exception if abbreviation is invalid */
+    parseAbbreviation(abbr: string, type: 'markup' | 'jsx'): MarkupAbbreviation;
+    parseAbbreviation(abbr: string, type: 'stylesheet'): CSSAbbreviation;
 }
 
 const stateKey = '$$emmet';
@@ -114,6 +120,14 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
 
     CM.defineExtension('emmetOptions', function (this: CodeMirror.Editor, pos = 0, withContext?: boolean) {
         return getOptions(this, pos, withContext);
+    });
+
+    CM.defineExtension('parseAbbreviation', function (this: CodeMirror.Editor, abbr: string, type: 'markup' | 'stylesheet' | 'jsx') {
+        if (type === 'stylesheet') {
+            return parseStylesheet(tokenizeStylesheet(abbr));
+        } else {
+            return parseMarkup(tokenizeMarkup(abbr), { jsx: type === 'jsx' });
+        }
     });
 }
 

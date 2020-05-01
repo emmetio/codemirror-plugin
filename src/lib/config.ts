@@ -62,6 +62,11 @@ export interface EmmetConfig {
 
     /** Advanced Emmet config */
     config?: GlobalConfig;
+
+    /**
+     * Function for attaching abbreviation preview
+     */
+    attachPreview?: (editor: CodeMirror.Editor, preview: HTMLElement, pos: CodeMirror.Position) => void;
 }
 
 export const defaultConfig: EmmetConfig = {

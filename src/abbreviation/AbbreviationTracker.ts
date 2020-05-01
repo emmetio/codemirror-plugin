@@ -153,7 +153,8 @@ export default class AbbreviationTracker {
     }
 
     showPreview(editor: CodeMirror.Editor) {
-        if (!getEmmetConfig(editor).preview) {
+        const config = getEmmetConfig(editor);
+        if (!config.preview) {
             return;
         }
 
@@ -175,7 +176,12 @@ export default class AbbreviationTracker {
                 previewElem.className = previewClass;
 
                 const pos = editor.posFromIndex(this.range[0]);
-                editor.addWidget(pos, previewElem, false);
+                if (config.attachPreview) {
+                    config.attachPreview(editor, previewElem, pos);
+                } else {
+                    editor.addWidget(pos, previewElem, false);
+                }
+
                 // @ts-ignore
                 this.preview = new editor.constructor(previewElem, {
                     mode: editor.getOption('mode'),

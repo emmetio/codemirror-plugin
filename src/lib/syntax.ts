@@ -3,7 +3,7 @@ import { SyntaxType } from 'emmet';
 const markupSyntaxes = ['html', 'xml', 'xsl', 'jsx', 'haml', 'jade', 'pug', 'slim'];
 const stylesheetSyntaxes = ['css', 'scss', 'sass', 'less', 'sss', 'stylus', 'postcss'];
 const xmlSyntaxes = ['xml', 'xsl', 'jsx'];
-const htmlSyntaxes = ['html', 'htmlmixed'];
+const htmlSyntaxes = ['html', 'htmlmixed', 'vue'];
 const cssSyntaxes = ['css', 'scss', 'less'];
 const jsxSyntaxes = ['jsx', 'tsx'];
 

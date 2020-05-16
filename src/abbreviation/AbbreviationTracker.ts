@@ -341,7 +341,7 @@ function isSimpleMarkupAbbreviation(abbr: MarkupAbbreviation): boolean {
         const first = abbr.children[0];
         // XXX silly check for common snippets like `!`. Should read contents
         // of expanded abbreviation instead
-        return !first.name || /^[a-z]/.test(first.name);
+        return !first.name || /^[a-z]/i.test(first.name);
     }
     return !abbr.children.length;
 }

@@ -30,6 +30,7 @@ export default function getOutputOptions(editor: CodeMirror.Editor, pos?: number
         }
 
         opt['bem.enabled'] = config.bem;
+        opt['stylesheet.shortHex'] = config.shortHex;
     }
 
     return opt;

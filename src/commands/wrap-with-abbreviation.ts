@@ -21,7 +21,7 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
     let updated = false;
 
     function onInput(evt: InputEvent) {
-        evt.stopPropagation();
+        evt && evt.stopPropagation();
         undo();
         try {
             const snippet = expand(editor, input.value, options);
@@ -70,6 +70,8 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
 
     function dispose() {
         input.removeEventListener('input', onInput);
+        input.removeEventListener('change', onInput);
+        input.removeEventListener('paste', onInput);
         input.removeEventListener('keydown', onKeyDown);
         input.removeEventListener('blur', cancel);
         panel.remove();
@@ -77,9 +79,13 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
         panel = input = errContainer = null;
     }
 
+    // Expose internals to programmatically submit or cancel command
+    panel['emmet'] = { submit, cancel, update: onInput };
+
     input.addEventListener('input', onInput);
+    input.addEventListener('change', onInput);
+    input.addEventListener('paste', onInput);
     input.addEventListener('keydown', onKeyDown);
-    // input.addEventListener('blur', cancel);
     editor.getWrapperElement().appendChild(panel);
     input.focus();
 }

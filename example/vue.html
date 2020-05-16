@@ -6,6 +6,8 @@
 	<link rel="stylesheet" href="./emmet.css" />
 
 	<script src="../node_modules/codemirror/lib/codemirror.js"></script>
+	<script src="../node_modules/codemirror/addon/mode/overlay.js"></script>
+	<script src="../node_modules/codemirror/addon/mode/simple.js"></script>
 	<script src="../node_modules/codemirror/mode/xml/xml.js"></script>
 	<script src="../node_modules/codemirror/mode/css/css.js"></script>
 	<script src="../node_modules/codemirror/mode/sass/sass.js"></script>
@@ -18,6 +20,7 @@
 	<script src="../node_modules/codemirror/mode/jsx/jsx.js"></script>
 	<script src="../node_modules/codemirror/mode/haml/haml.js"></script>
 	<script src="../node_modules/codemirror/mode/pug/pug.js"></script>
+	<script src="../node_modules/codemirror/mode/vue/vue.js"></script>
 
 	<script src="../dist/browser.js"></script>
 
@@ -57,32 +60,66 @@
 		<option value="text/x-pug">Pug</option>
 	</select>
 	<textarea id="code" name="code">
-&lt;html style="color: green"&gt;
-  &lt;!-- this is a comment --&gt;
-  &lt;head&gt;
-    &lt;title&gt;HTML Example&lt;/title&gt;
-    &lt;style&gt;
-    body {
-      padding: 10px;
-    }
-    &lt;/style&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    line 1
-    line 2
-    line 3
-    The indentation tries to be &lt;em&gt;somewhat &amp;quot;do what I mean&amp;quot;&lt;/em&gt;...
-    but might not match your style.
-  &lt;/body&gt;
-&lt;/html&gt;</textarea>
+<!-- Use preprocessors via the lang attribute! e.g. <template lang="pug"> -->
+<template>
+  <div id="app">
+    <h1>{{message}}</h1>
 
-	<h3>Emmet abbreviation mode</h3>
-	<div class="emmet-abbreviation-editor">
-		<textarea id="abbreviation" name="abbreviation">ul#main.nav>li.nav-item[a=b title="foo bar"]*4>a</textarea>
-	</div>
+    <p>
+      Learn more with the
+      <a
+        href="https://vuejs.org/"
+        target="_blank"
+        rel="noopener"
+      >Vue Docs &amp; Resources</a>.
+    </p>
+
+    <button @click="doSomething">Say hello.</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      message: 'Welcome to Vue!'
+    };
+  },
+  methods: {
+    doSomething() {
+      alert('Hello!');
+    }
+  }
+};
+</script>
+
+<!-- Use preprocessors via the lang attribute! e.g. <style lang="scss"> -->
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+a,
+button {
+  color: #4fc08d;
+}
+
+button {
+  background: none;
+  border: solid 1px;
+  border-radius: 2em;
+  font: inherit;
+  padding: 0.75em 2em;
+}
+</style>
+</textarea>
+
 	<script>
 		var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-			mode : "text/html",
+			mode : "text/x-vue",
 			lineNumbers : true,
 			extraKeys: {
 				'Tab': 'emmetExpandAbbreviation',
@@ -119,13 +156,6 @@
 					}
 				}
 			}
-		});
-
-		CodeMirror.fromTextArea(document.getElementById("abbreviation"), {
-			mode : "emmet-abbreviation",
-			lineNumbers : false,
-			indentUnit: 0,
-			scrollbarStyle: 'null'
 		});
 
 		function updateSyntax(mode) {

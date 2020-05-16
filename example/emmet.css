@@ -66,6 +66,7 @@
     left: 0;
     z-index: 2;
     width: 100%;
+    animation: emmet-panel-show 0.2s ease-out;
 }
 
 .emmet-panel-wrapper {
@@ -161,4 +162,11 @@
 
 .emmet-abbreviation-editor .CodeMirror-lines {
     padding: 0;
+}
+
+@keyframes emmet-panel-show {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
 }

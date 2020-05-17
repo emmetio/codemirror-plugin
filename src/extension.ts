@@ -11,6 +11,7 @@ import snippetMode from './mode/snippet';
 
 import expandAbbreviation from './commands/expand-abbreviation';
 import emmetResetAbbreviation from './commands/reset-abbreviation'
+import emmetCaptureAbbreviation from './commands/capture-abbreviation'
 import emmetEnterAbbreviationMode from './commands/enter-abbreviation';
 import emmetInsertLineBreak from './commands/insert-line-break';
 import emmetWrapWithAbbreviation from './commands/wrap-with-abbreviation';
@@ -61,6 +62,7 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
     Object.assign(CM.commands, {
         emmetExpandAbbreviation: (editor: CodeMirror.Editor) => expandAbbreviation(editor, true),
         emmetExpandAbbreviationAll: (editor: CodeMirror.Editor) => expandAbbreviation(editor, false),
+        emmetCaptureAbbreviation,
         emmetResetAbbreviation,
         emmetEnterAbbreviationMode,
         emmetInsertLineBreak,

@@ -64,6 +64,10 @@ Run `emmetExpandAbbreviation` command to expand tracked abbreviation or `emmetRe
 
 Abbreviation tracker is _context-aware_: it detect current syntax context and works only where abbreviation expected. For example, in HTML syntax it works in plain text context only and doesn’t work, for example, in attribute value or tag name.
 
+If you already have abbreviation in editor, you can _capture_ it to continue editing: run `emmetCaptureAbbreviation` action (<kbd>Ctrl-Space</kbd> by default):
+
+![Emmet abbreviation capturing](./example/emmet-capture.gif)
+
 ### Abbreviation mode
 
 In case if abbreviation tracking is unavailable or you want to give user an opportunity to enter and expand abbreviation with interactive preview, a special _abbreviation mode_ is available. Run `emmetEnterAbbreviationMode` command to enter this mode: everything user types will be tracked as abbreviation with preview and validation. Use `emmetExpandAbbreviation` command to expand it or `emmetResetAbbreviation` to quit abbreviation mode.

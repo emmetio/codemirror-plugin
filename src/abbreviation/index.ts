@@ -1,8 +1,8 @@
 import { UserConfig } from 'emmet';
 import getEmmetConfig from '../lib/config';
 import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax } from '../lib/syntax';
-import { getCaret, substr } from '../lib/utils';
-import { JSX_PREFIX } from '../lib/emmet';
+import { getCaret, substr, getContent } from '../lib/utils';
+import { JSX_PREFIX, extract } from '../lib/emmet';
 import getAbbreviationContext from '../lib/context';
 import AbbreviationTracker, { handleChange, handleSelectionChange, stopTracking, startTracking } from './AbbreviationTracker';
 
@@ -58,6 +58,18 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
         editor.off('focus', onSelectionChange);
         editor.off('cursorActivity', onSelectionChange);
     };
+}
+
+/**
+ * If allowed, tries to extract abbreviation from given completion context
+ */
+export function extractTracker(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
+    const syntax = syntaxFromPos(editor, pos);
+    const prefix = isJSX(syntax) ? JSX_PREFIX : ''
+    const abbr = extract(getContent(editor), pos, syntax, { prefix });
+    if (abbr) {
+        return startTracking(editor, abbr.start, abbr.end, { offset: prefix.length });
+    }
 }
 
 /**

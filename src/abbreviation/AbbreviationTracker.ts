@@ -3,6 +3,7 @@ import { TextRange } from '@emmetio/action-utils';
 import { substr, toRange, getCaret, AbbrError, errorSnippet } from '../lib/utils';
 import { getOptions, expand } from '../lib/emmet';
 import getEmmetConfig from '../lib/config';
+import { syntaxInfo, enabledForSyntax } from '../lib/syntax';
 
 interface AbbrBase {
     abbr: string;
@@ -154,7 +155,9 @@ export default class AbbreviationTracker {
 
     showPreview(editor: CodeMirror.Editor) {
         const config = getEmmetConfig(editor);
-        if (!config.preview) {
+
+        // Check if we should display preview
+        if (!enabledForSyntax(config.preview, syntaxInfo(editor, this.range[0]))) {
             return;
         }
 

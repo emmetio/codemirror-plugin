@@ -4,12 +4,18 @@ export interface EmmetEditorOptions extends CodeMirror.EditorConfiguration {
     emmet: EmmetConfig;
 }
 
+export type EnableForSyntax = boolean | string[];
+
 export interface EmmetConfig {
     /** Enables abbreviation marking in editor. Works in known syntaxes only */
-    mark: boolean;
+    mark: EnableForSyntax;
 
-    /** Enables preview of marked abbreviation */
-    preview: boolean;
+    /**
+     * Enables preview of marked abbreviation. Pass `true` to enable preview for
+     * all syntaxes or array of modes or Emmet syntax types (`markup` or `stylesheet`)
+     * where preview should be displayed
+     */
+    preview: EnableForSyntax;
 
     /** Mark HTML tag pairs in editor */
     markTagPairs: boolean;

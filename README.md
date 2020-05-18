@@ -126,8 +126,8 @@ CodeMirror.fromTextArea(document.getElementById("code"), {
 
 Extension supports the following options:
 
-* `mark` (boolean): enables abbreviation tracking and marking in editor. Works in known syntaxes only.
-* `preview` (boolean): enable preview of tracked abbreviation. Preview is displayed only when abbreviation will expand in more than one element.
+* `mark` (boolean or string[]): enables abbreviation tracking and marking in editor. If `true` is provided, it will work in all known syntaxes. You can specify array of syntaxes/modes where abbreviation marking should work; array may include `markup` or `stylesheet` keyword to enable option for all known markup or stylesheet syntaxes.
+* `preview` (boolean or string[]): enable preview of tracked abbreviation. Preview is displayed only when abbreviation will expand in more than one element. Same as with `mark` option, you can enable it for all syntaxes (`true`) or limit it to specified syntaxes or syntax groups.
 * `markTagPairs` (boolean): enable HTML tag pair marking in editor.
 * `previewOpenTag` (boolean): displays open tag preview when cursor is inside its matching closing tag. Preview is displayed only if open tag has attributes and works only if `markTagPairs` is enabled
 * `autoRenameTags` (boolean): automatically rename tag pair when updating open or close tag name. Works only if `markTagPairs` is enabled.

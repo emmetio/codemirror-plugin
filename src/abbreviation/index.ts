@@ -1,6 +1,6 @@
 import { UserConfig } from 'emmet';
 import getEmmetConfig from '../lib/config';
-import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax } from '../lib/syntax';
+import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax, syntaxInfo, enabledForSyntax } from '../lib/syntax';
 import { getCaret, substr, getContent } from '../lib/utils';
 import { JSX_PREFIX, extract } from '../lib/emmet';
 import getAbbreviationContext from '../lib/context';
@@ -32,11 +32,11 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
         lastPos = pos;
     };
     const onSelectionChange = (ed: CodeMirror.Editor) => {
-        if (!isEnabled(ed)) {
+        const caret = getCaret(ed);
+        if (!isEnabled(ed, caret)) {
             return;
         }
 
-        const caret = getCaret(ed);
         const tracker = handleSelectionChange(ed, caret);
         if (tracker) {
             if (tracker.abbreviation && tracker.contains(caret)) {
@@ -76,7 +76,7 @@ export function extractTracker(editor: CodeMirror.Editor, pos: number): Abbrevia
  * Check if abbreviation tracking is allowed in editor at given location
  */
 function allowTracking(editor: CodeMirror.Editor, pos: number): boolean {
-    if (isEnabled(editor)) {
+    if (isEnabled(editor, pos)) {
         const syntax = syntaxFromPos(editor, pos);
         return syntax ? isSupported(syntax) || isJSX(syntax) : false;
     }
@@ -87,8 +87,9 @@ function allowTracking(editor: CodeMirror.Editor, pos: number): boolean {
 /**
  * Check if Emmet auto-complete is enabled
  */
-function isEnabled(editor: CodeMirror.Editor): boolean {
-    return getEmmetConfig(editor).mark;
+function isEnabled(editor: CodeMirror.Editor, pos: number): boolean {
+    const config = getEmmetConfig(editor);
+    return enabledForSyntax(config.mark, syntaxInfo(editor, pos));
 }
 
 /**
@@ -154,7 +155,7 @@ function shouldStopTracking(tracker: AbbreviationTracker, pos: number): boolean 
     }
 
     // Reset if user entered invalid character at the end of abbreviation
-    // or at the edge of auto - inserted paried character like`)` or`]`
+    // or at the edge of auto - inserted paired character like`)` or`]`
     if (tracker.abbreviation.type === 'error') {
         if (tracker.range[1] === pos) {
             // Last entered character is invalid

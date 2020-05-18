@@ -1,4 +1,5 @@
 import { SyntaxType } from 'emmet';
+import { EnableForSyntax } from './config';
 
 const markupSyntaxes = ['html', 'xml', 'xsl', 'jsx', 'haml', 'jade', 'pug', 'slim'];
 const stylesheetSyntaxes = ['css', 'scss', 'sass', 'less', 'sss', 'stylus', 'postcss'];
@@ -114,3 +115,22 @@ export function isJSX(syntax?: string): boolean {
     return syntax ? jsxSyntaxes.includes(syntax) : false;
 }
 
+/**
+ * Check if given option if enabled for specified syntax
+ */
+export function enabledForSyntax(opt: EnableForSyntax, info: SyntaxInfo) {
+    if (opt === true) {
+        return true;
+    }
+
+    if (Array.isArray(opt)) {
+        const candidates: string[] = [info.type, info.syntax!];
+        if (info.inline) {
+            candidates.push(`${info.type}-inline`, `${info.syntax!}-inline`);
+        }
+
+        return candidates.some(c => opt.includes(c));
+    }
+
+    return false;
+}

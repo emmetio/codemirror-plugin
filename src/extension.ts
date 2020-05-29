@@ -3,7 +3,7 @@ import { parse as parseMarkup, tokenize as tokenizeMarkup, MarkupAbbreviation } 
 import { parser as parseStylesheet, tokenize as tokenizeStylesheet, CSSAbbreviation } from '@emmetio/css-abbreviation';
 import CodeMirror from 'codemirror';
 import getEmmetConfig, { defaultConfig, EmmetConfig, EmmetEditorOptions } from './lib/config';
-import abbreviationTracker from './abbreviation';
+import abbreviationTracker, { extractTracker } from './abbreviation';
 import matchTags from './lib/match-tags';
 import markupMode from './mode/markup';
 import stylesheetMode from './mode/stylesheet';
@@ -25,6 +25,8 @@ import emmetRemoveTag from './commands/remove-tag';
 import selectItem from './commands/select-item';
 import emmetSplitJoinTag from './commands/split-join-tag';
 import { expand, getOptions } from './lib/emmet';
+import { getTracker, stopTracking } from './abbreviation/AbbreviationTracker';
+import { replaceWithSnippet } from './lib/utils';
 
 type DisposeFn = () => void;
 
@@ -46,6 +48,15 @@ export interface EmmetEditor extends CodeMirror.Editor {
     /** Parses given abbreviation to AST or throws exception if abbreviation is invalid */
     parseAbbreviation(abbr: string, type: 'markup' | 'jsx'): MarkupAbbreviation;
     parseAbbreviation(abbr: string, type: 'stylesheet'): CSSAbbreviation;
+    getEmmetCompletion(pos: number | CodeMirror.Position): CompletionItem;
+}
+
+interface CompletionItem {
+    text: string;
+    displayText: string;
+    hint(): void;
+    from: CodeMirror.Position;
+    to: CodeMirror.Position;
 }
 
 const stateKey = '$$emmet';
@@ -129,6 +140,27 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
             return parseStylesheet(tokenizeStylesheet(abbr));
         } else {
             return parseMarkup(tokenizeMarkup(abbr), { jsx: type === 'jsx' });
+        }
+    });
+
+    CM.defineExtension('getEmmetCompletion', function (this: CodeMirror.Editor, pos: number | CodeMirror.Position) {
+        if (typeof pos !== 'number') {
+            pos = this.indexFromPos(pos);
+        }
+        const tracker = getTracker(this) || extractTracker(this, pos);
+        if (tracker && tracker.contains(pos) && tracker.abbreviation?.type === 'abbreviation') {
+            const { abbr, preview } = tracker.abbreviation;
+            return {
+                text: abbr,
+                displayText: preview,
+                hint: () => {
+                    stopTracking(this);
+                    const snippet = expand(this, abbr, tracker.options);
+                    replaceWithSnippet(this, tracker.range, snippet);
+                },
+                from: this.posFromIndex(tracker.range[0]),
+                to: this.posFromIndex(tracker.range[1]),
+            } as CompletionItem;
         }
     });
 }

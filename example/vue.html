@@ -3,6 +3,7 @@
 <head>
 	<title>Emmet for CodeMirror 5</title>
 	<link rel="stylesheet" href="../node_modules/codemirror/lib/codemirror.css" />
+	<link rel="stylesheet" href="../node_modules/codemirror/addon/hint/show-hint.css" />
 	<link rel="stylesheet" href="./emmet.css" />
 
 	<script src="../node_modules/codemirror/lib/codemirror.js"></script>
@@ -21,6 +22,8 @@
 	<script src="../node_modules/codemirror/mode/haml/haml.js"></script>
 	<script src="../node_modules/codemirror/mode/pug/pug.js"></script>
 	<script src="../node_modules/codemirror/mode/vue/vue.js"></script>
+	<script src="../node_modules/codemirror/addon/hint/show-hint.js"></script>
+	<script src="./css-hint.js"></script>
 
 	<script src="../dist/browser.js"></script>
 
@@ -126,7 +129,8 @@ button {
 				'Esc': 'emmetResetAbbreviation',
 				'Enter': 'emmetInsertLineBreak',
 				'Ctrl-E': 'emmetExpandAbbreviationAll',
-				'Ctrl-Space': 'emmetCaptureAbbreviation',
+				// 'Ctrl-Space': 'emmetCaptureAbbreviation',
+				'Ctrl-Space': 'autocomplete',
 				'Ctrl-.': 'emmetEnterAbbreviationMode',
 				'Ctrl-W': 'emmetWrapWithAbbreviation',
 				'Cmd-D': 'emmetBalance',
@@ -149,10 +153,16 @@ button {
 			},
 			emmet: {
 				markTagPairs: true,
+				preview: ['markup'],
 				config: {
 					markup: {
 						snippets: {
 							'foo': 'ul.nav>li'
+						}
+					},
+					stylesheet: {
+						snippets: {
+							'mySnippet': 'body {\n\t${0}\n}'
 						}
 					}
 				}

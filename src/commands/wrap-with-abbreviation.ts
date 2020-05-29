@@ -12,7 +12,7 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
     const caret = getCaret(editor);
     const context = getTagContext(editor, caret, isXML(syntax));
     const wrapRange = getWrapRange(editor, getSelection(editor), context);
-    const options = getOptions(editor, caret);
+    const options = getOptions(editor, wrapRange[0]);
     options.text = getContent(editor, wrapRange, true);
 
     let panel = createInputPanel();

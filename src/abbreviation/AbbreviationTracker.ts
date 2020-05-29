@@ -91,7 +91,7 @@ export default class AbbreviationTracker {
         }
 
         if (!this.options) {
-            this.options = getOptions(editor, this.range[0], true);
+            this.options = getOptions(editor, this.range[0]);
         }
 
         this.abbreviation = null;

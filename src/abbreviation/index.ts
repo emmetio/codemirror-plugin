@@ -1,18 +1,26 @@
-import { UserConfig } from 'emmet';
+import { UserConfig, CSSAbbreviationScope } from 'emmet';
+import { TokenType } from '@emmetio/css-matcher';
+import { getHTMLContext, getCSSContext, CSSContext } from '@emmetio/action-utils';
+import AbbreviationTracker, { handleChange, handleSelectionChange, stopTracking, startTracking } from './AbbreviationTracker';
 import getEmmetConfig from '../lib/config';
-import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax, syntaxInfo, enabledForSyntax } from '../lib/syntax';
+import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax, syntaxInfo, enabledForSyntax, isXML, getEmbeddedStyleSyntax, getMarkupAbbreviationContext, getStylesheetAbbreviationContext, getSyntaxType } from '../lib/syntax';
 import { getCaret, substr, getContent } from '../lib/utils';
 import { JSX_PREFIX, extract } from '../lib/emmet';
-import getAbbreviationContext from '../lib/context';
-import AbbreviationTracker, { handleChange, handleSelectionChange, stopTracking, startTracking } from './AbbreviationTracker';
+import getOutputOptions from '../lib/output';
 
 const reJSXAbbrStart = /^[a-zA-Z.#\[\(]$/;
 const reWordBound = /^[\s>;"\']?[a-zA-Z.#!@\[\(]$/;
+const reStylesheetWordBound = /^[\s;]?[a-zA-Z!@]$/;
 const pairs = {
     '{': '}',
     '[': ']',
     '(': ')'
 };
+
+const pairsEnd: string[] = [];
+for (const key of Object.keys(pairs)) {
+    pairsEnd.push(pairs[key]);
+}
 
 export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
     let lastPos: number | null = null;
@@ -64,11 +72,15 @@ export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
  * If allowed, tries to extract abbreviation from given completion context
  */
 export function extractTracker(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
-    const syntax = syntaxFromPos(editor, pos);
-    const prefix = isJSX(syntax) ? JSX_PREFIX : ''
-    const abbr = extract(getContent(editor), pos, syntax, { prefix });
+    const syntax = docSyntax(editor);
+    const prefix = isJSX(syntax) ? JSX_PREFIX : '';
+    const options = getActivationContext(editor, pos);
+    const abbr = extract(getContent(editor), pos, getSyntaxType(options?.syntax), { prefix });
     if (abbr) {
-        return startTracking(editor, abbr.start, abbr.end, { offset: prefix.length });
+        return startTracking(editor, abbr.start, abbr.end, {
+            offset: prefix.length,
+            options
+        });
     }
 }
 
@@ -123,19 +135,33 @@ function startAbbreviationTracking(editor: CodeMirror.Editor, pos: number): Abbr
             end++;
         }
 
-        let options: UserConfig | undefined;
-        if (isCSS(syntax) || isHTML(syntax)) {
-            options = getAbbreviationContext(editor, pos);
-
-            if (!options) {
-                // No valid context for known syntaxes
+        const options = getActivationContext(editor, pos);
+        if (options) {
+            if (options.type === 'stylesheet' && !reStylesheetWordBound.test(prefix)) {
+                // Additional check for stylesheet abbreviation start: it’s slightly
+                // differs from markup prefix, but we need activation context
+                // to ensure that context under caret is CSS
                 return;
             }
 
-            options.type = isCSS(options.syntax) ? 'stylesheet' : 'markup';
-        }
+            const tracker = startTracking(editor, start, end, { offset, options });
+            if (tracker.abbreviation?.type === 'abbreviation' && options.context?.name === CSSAbbreviationScope.Section) {
+                // Make a silly check for section context: if user start typing
+                // CSS selector at the end of file, it will be treated as property
+                // name and provide unrelated completion by default.
+                // We should check if captured abbreviation actually matched
+                // snippet to continue. Otherwise, ignore this abbreviation.
+                // By default, unresolved abbreviations are converted to CSS properties,
+                // e.g. `a` → `a: ;`. If that’s the case, stop tracking
+                const { abbr, preview } = tracker.abbreviation;
+                if (preview.startsWith(abbr) && /^:\s*;?$/.test(preview.slice(abbr.length))) {
+                    stopTracking(editor);
+                    return;
+                }
+            }
 
-        return startTracking(editor, start, end, { offset, options });
+            return tracker;
+        }
     }
 }
 
@@ -162,7 +188,6 @@ function shouldStopTracking(tracker: AbbreviationTracker, pos: number): boolean 
             return true;
         }
 
-        const pairsEnd = Object.values(pairs);
         const { abbr } = tracker.abbreviation;
         const start = tracker.range[0];
         let targetPos = tracker.range[1];
@@ -175,6 +200,84 @@ function shouldStopTracking(tracker: AbbreviationTracker, pos: number): boolean 
         }
 
         return targetPos === pos;
+    }
+
+    return false;
+}
+
+/**
+ * Detects and returns valid abbreviation activation context for given location
+ * in editor which can be used for abbreviation expanding.
+ * For example, in given HTML code:
+ * `<div title="Sample" style="">Hello world</div>`
+ * it’s not allowed to expand abbreviations inside `<div ...>` or `</div>`,
+ * yet it’s allowed inside `style` attribute and between tags.
+ *
+ * This method ensures that given `pos` is inside location allowed for expanding
+ * abbreviations and returns context data about it
+ */
+export function getActivationContext(editor: CodeMirror.Editor, pos: number): UserConfig | undefined {
+    const syntax = docSyntax(editor);
+
+    if (isCSS(syntax)) {
+        return getCSSActivationContext(editor, pos, syntax, getCSSContext(getContent(editor), pos));
+    }
+
+    if (isHTML(syntax)) {
+        const content = getContent(editor);
+        const ctx = getHTMLContext(content, pos, { xml: isXML(syntax) });
+
+        if (ctx.css) {
+            return getCSSActivationContext(editor, pos, getEmbeddedStyleSyntax(content, ctx) || syntax, ctx.css);
+        }
+
+        if (!ctx.current) {
+            return {
+                syntax,
+                type: 'markup',
+                context: getMarkupAbbreviationContext(content, ctx),
+                options: getOutputOptions(editor, pos)
+            };
+        }
+    } else {
+        return { syntax, type: 'markup' };
+    }
+}
+
+function getCSSActivationContext(editor: CodeMirror.Editor, pos: number, syntax: string, ctx: CSSContext): UserConfig | undefined {
+    // CSS abbreviations can be activated only when a character is entered, e.g.
+    // it should be either property name or value.
+    // In come cases, a first character of selector should also be considered
+    // as activation context
+    if (!ctx.current) {
+        return void 0;
+    }
+
+    const allowedContext = ctx.current.type === TokenType.PropertyName
+        || ctx.current.type === TokenType.PropertyValue
+        || isTypingBeforeSelector(editor, pos, ctx);
+
+    if (allowedContext) {
+        return {
+            syntax,
+            type: 'stylesheet',
+            context: getStylesheetAbbreviationContext(ctx),
+            options: getOutputOptions(editor, pos, ctx.inline)
+        };
+    }
+}
+
+/**
+ * Handle edge case: start typing abbreviation before selector. In this case,
+ * entered character becomes part of selector
+ * Activate only if it’s a nested section and it’s a first character of selector
+ */
+function isTypingBeforeSelector(editor: CodeMirror.Editor, pos: number, { current }: CSSContext): boolean {
+    if (current && current.type === TokenType.Selector && current.range[0] === pos - 1) {
+        // Typing abbreviation before selector is tricky one:
+        // ensure it’s on its own line
+        const line = substr(editor, current.range).split(/[\n\r]/)[0];
+        return line.trim().length === 1;
     }
 
     return false;

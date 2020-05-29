@@ -1,17 +1,22 @@
-import { SyntaxType } from 'emmet';
+import { SyntaxType, CSSAbbreviationScope, AbbreviationContext } from 'emmet';
+import { TokenType } from '@emmetio/css-matcher';
+import { attributes } from '@emmetio/html-matcher';
+import { CSSContext, HTMLContext, getHTMLContext, getCSSContext } from '@emmetio/action-utils';
 import { EnableForSyntax } from './config';
+import { getContent, last, attributeValue } from './utils';
 
-const markupSyntaxes = ['html', 'xml', 'xsl', 'jsx', 'haml', 'jade', 'pug', 'slim'];
-const stylesheetSyntaxes = ['css', 'scss', 'sass', 'less', 'sss', 'stylus', 'postcss'];
 const xmlSyntaxes = ['xml', 'xsl', 'jsx'];
 const htmlSyntaxes = ['html', 'htmlmixed', 'vue'];
 const cssSyntaxes = ['css', 'scss', 'less'];
 const jsxSyntaxes = ['jsx', 'tsx'];
+const markupSyntaxes = ['haml', 'jade', 'pug', 'slim'].concat(htmlSyntaxes, xmlSyntaxes, jsxSyntaxes);
+const stylesheetSyntaxes = ['sass', 'sss', 'stylus', 'postcss'].concat(cssSyntaxes);
 
 export interface SyntaxInfo {
     type: SyntaxType;
     syntax?: string;
     inline?: boolean;
+    context?: HTMLContext | CSSContext;
 }
 
 export interface StylesheetRegion {
@@ -34,13 +39,31 @@ export interface SyntaxCache {
  * given fallback syntax
  */
 export function syntaxInfo(editor: CodeMirror.Editor, pos: number): SyntaxInfo {
-    const syntax = syntaxFromPos(editor, pos) || 'html';
+    let syntax = docSyntax(editor);
+    let inline: boolean | undefined;
+    let context: HTMLContext | CSSContext | undefined;
+
+    if (isHTML(syntax)) {
+        const content = getContent(editor);
+        context = getHTMLContext(content, pos, {
+            xml: isXML(syntax)
+        });
+
+        if (context.css) {
+            // `pos` is in embedded CSS
+            syntax = getEmbeddedStyleSyntax(content, context) || 'css';
+            inline = context.css.inline;
+            context = context.css;
+        }
+    } else if (isCSS(syntax)) {
+        context = getCSSContext(getContent(editor), pos);
+    }
 
     return {
         type: getSyntaxType(syntax),
         syntax,
-        // TODO handle inline
-        inline: false
+        inline,
+        context
     };
 }
 
@@ -133,4 +156,55 @@ export function enabledForSyntax(opt: EnableForSyntax, info: SyntaxInfo) {
     }
 
     return false;
+}
+
+/**
+ * Returns embedded stylesheet syntax from given HTML context
+ */
+export function getEmbeddedStyleSyntax(code: string, ctx: HTMLContext): string | undefined {
+    const parent = last(ctx.ancestors);
+    if (parent && parent.name === 'style') {
+        for (const attr of attributes(code.slice(parent.range[0], parent.range[1]), parent.name)) {
+            if (attr.name === 'type') {
+                return attributeValue(attr);
+            }
+        }
+    }
+}
+
+/**
+ * Returns context for Emmet abbreviation from given HTML context
+ */
+export function getMarkupAbbreviationContext(code: string, ctx: HTMLContext): AbbreviationContext | undefined {
+    const parent = last(ctx.ancestors);
+    if (parent) {
+        const attrs: { [name: string]: string } = {};
+        for (const attr of attributes(code.slice(parent.range[0], parent.range[1]), parent.name)) {
+            attrs[attr.name] = attributeValue(attr) || '';
+        }
+
+        return {
+            name: parent.name,
+            attributes: attrs
+        };
+    }
+}
+
+/**
+ * Returns context for Emmet abbreviation from given CSS context
+ */
+export function getStylesheetAbbreviationContext(ctx: CSSContext): AbbreviationContext {
+    const parent = last(ctx.ancestors);
+    let scope: string = CSSAbbreviationScope.Global;
+    if (ctx.current) {
+        if (ctx.current.type === TokenType.PropertyValue && parent) {
+            scope = parent.name;
+        } else if ((ctx.current.type === TokenType.Selector || ctx.current.type === TokenType.PropertyName) && !parent) {
+            scope = CSSAbbreviationScope.Section;
+        }
+    }
+
+    return {
+        name: scope
+    };
 }

@@ -4,20 +4,36 @@ import { pass, getCaret, replaceWithSnippet } from '../lib/utils';
 import getEmmetConfig from '../lib/config';
 import { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
 import { expand, extract, getOptions } from '../lib/emmet';
-import { syntaxFromPos, isCSS, isHTML } from '../lib/syntax';
-import getAbbreviationContext from '../lib/context';
+import { getSyntaxType } from '../lib/syntax';
+import { getActivationContext } from '../abbreviation';
 
 export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: boolean) {
     if (editor.somethingSelected()) {
         return pass(editor);
     }
 
-    const caret = getCaret(editor);
+    if (tabKey) {
+        return expandAbbreviationWithTab(editor);
+    }
 
+    const caret = getCaret(editor);
+    const pos = editor.posFromIndex(caret);
+    const line = editor.getLine(pos.line);
+    const options = getOptions(editor, caret);
+    const abbr = extract(line, pos.ch, getSyntaxType(options.syntax));
+
+    if (abbr) {
+        const offset = caret - pos.ch;
+        runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
+    }
+}
+
+function expandAbbreviationWithTab(editor: CodeMirror.Editor) {
     // With Tab key, we should either expand tracked abbreviation
     // or extract abbreviation from current location if abbreviation marking
     // is not available
-    if (tabKey && getEmmetConfig(editor).mark) {
+    const caret = getCaret(editor);
+    if (getEmmetConfig(editor).mark) {
         const tracker = getTracker(editor);
 
         if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
@@ -28,25 +44,19 @@ export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: b
         return pass(editor);
     }
 
-    const pos = editor.posFromIndex(caret);
-    const line = editor.getLine(pos.line);
-    const syntax = syntaxFromPos(editor, caret);
-    const abbr = extract(line, pos.ch, syntax);
-
-    if (abbr) {
-        const offset = caret - pos.ch;
-        let options: UserConfig | undefined;
-        if (isCSS(syntax) || isHTML(syntax)) {
-            options = getAbbreviationContext(editor, caret);
-            if (!options) {
-                return tabKey ? pass(editor) : null;
-            }
-        } else {
-            options = getOptions(editor, offset + abbr.start);
+    const options = getActivationContext(editor, caret);
+    if (options) {
+        const pos = editor.posFromIndex(caret);
+        const line = editor.getLine(pos.line);
+        const abbr = extract(line, pos.ch, getSyntaxType(options.syntax));
+        if (abbr) {
+            const offset = caret - pos.ch;
+            runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
+            return;
         }
-
-        runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
     }
+
+    return pass(editor);
 }
 
 function runExpand(editor: CodeMirror.Editor, abbr: string, range: TextRange, options?: UserConfig) {

@@ -120,8 +120,8 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         return expand(this, abbr, options);
     });
 
-    CM.defineExtension('emmetOptions', function (this: CodeMirror.Editor, pos = 0, withContext?: boolean) {
-        return getOptions(this, pos, withContext);
+    CM.defineExtension('emmetOptions', function (this: CodeMirror.Editor, pos = 0) {
+        return getOptions(this, pos);
     });
 
     CM.defineExtension('parseAbbreviation', function (this: CodeMirror.Editor, abbr: string, type: 'markup' | 'stylesheet' | 'jsx') {

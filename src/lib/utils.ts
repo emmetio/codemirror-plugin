@@ -253,3 +253,10 @@ export function errorSnippet(err: AbbrError, baseClass = 'emmet-error-snippet'):
         <div class="${baseClass}-message">${htmlEscape(err.message.replace(/\s+at\s+\d+$/, ''))}</div>
     </div>`;
 }
+
+/**
+ * Returns last element in given array
+ */
+export function last<T>(arr: T[]): T | undefined {
+    return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}

@@ -47,7 +47,10 @@
     }
 
     if (cm.getEmmetCompletion) {
-        result.push(cm.getEmmetCompletion(cur));
+        var emmetCompletion = cm.getEmmetCompletion(cur);
+        if (emmetCompletion) {
+            result.push(emmetCompletion);
+        }
     }
 
     var st = inner.state.state;

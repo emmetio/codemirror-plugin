@@ -25,15 +25,8 @@ import emmetRemoveTag from './commands/remove-tag';
 import selectItem from './commands/select-item';
 import emmetSplitJoinTag from './commands/split-join-tag';
 import { expand, getOptions } from './lib/emmet';
-import { getTracker, stopTracking } from './abbreviation/AbbreviationTracker';
-import { replaceWithSnippet } from './lib/utils';
-
-type DisposeFn = () => void;
-
-interface EmmetState {
-    tracker?: DisposeFn | null;
-    tagMatch?: DisposeFn | null;
-}
+import { getTracker, stopTracking, startTracking } from './abbreviation/AbbreviationTracker';
+import { replaceWithSnippet, getInternalState, hasInternalState } from './lib/utils';
 
 export interface EmmetEditor extends CodeMirror.Editor {
     /**
@@ -58,8 +51,6 @@ interface CompletionItem {
     from: CodeMirror.Position;
     to: CodeMirror.Position;
 }
-
-const stateKey = '$$emmet';
 
 /**
  * Registers Emmet extension on given CodeMirror constructor.
@@ -99,11 +90,11 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
 
     // Track options change
     CM.defineOption('emmet', defaultConfig, (editor: CodeMirror.Editor, value: EmmetConfig) => {
-        if (!editor[stateKey]) {
-            editor[stateKey] = {};
+        if (!hasInternalState(editor)) {
+            editor.on('change', undoTracker);
         }
 
-        const state = editor[stateKey] as EmmetState;
+        const state = getInternalState(editor);
         value = getEmmetConfig(editor, value);
 
         if (value.mark && !state.tracker) {
@@ -163,6 +154,31 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
             } as CompletionItem;
         }
     });
+}
+
+/**
+ * Undo tracker, if possible
+ */
+function undoTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChangeLinkedList) {
+    if (change.origin === 'undo') {
+        const state = getInternalState(editor);
+        const { lastTracker } = state;
+
+        if (lastTracker) {
+            const shouldRestore = lastTracker.valid
+                && change.text.length === 1
+                && change.text[0] === lastTracker.abbr
+                && lastTracker.range[0] === editor.indexFromPos(change.from);
+
+            if (shouldRestore) {
+                state.lastTracker = null;
+                startTracking(editor, lastTracker.range[0], lastTracker.range[1], {
+                    offset: lastTracker.offset,
+                    forced: lastTracker.forced
+                });
+            }
+        }
+    }
 }
 
 export { EmmetConfig, EmmetEditorOptions };

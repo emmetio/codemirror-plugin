@@ -36,6 +36,14 @@ const previewClass = 'emmet-abbreviation-preview';
 /** Key for storing Emmet tracker in editor instance */
 const trackerKey = '$$emmetTracker';
 
+export interface SerializedTracker {
+    range: TextRange;
+    abbr?: string;
+    valid: boolean;
+    forced: boolean;
+    offset: number;
+}
+
 export default class AbbreviationTracker {
     /** Last caret location in document */
     public lastPos: number;
@@ -224,6 +232,19 @@ export default class AbbreviationTracker {
      */
     contains(pos: number): boolean {
         return pos >= this.range[0] && pos <= this.range[1];
+    }
+
+    /**
+     * Returns serialized copy of current tracked
+     */
+    serialize(): SerializedTracker {
+        return {
+            range: this.range,
+            abbr: this.abbreviation?.abbr,
+            valid: this.abbreviation?.type === 'abbreviation',
+            forced: this.forced,
+            offset: this.offset
+        };
     }
 
     private disposeMarker() {

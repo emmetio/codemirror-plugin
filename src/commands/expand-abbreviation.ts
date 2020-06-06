@@ -1,8 +1,8 @@
 import { UserConfig } from 'emmet';
 import { TextRange } from '@emmetio/action-utils';
-import { pass, getCaret, replaceWithSnippet } from '../lib/utils';
+import { pass, getCaret, replaceWithSnippet, getInternalState } from '../lib/utils';
 import getEmmetConfig from '../lib/config';
-import { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
+import AbbreviationTracker, { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
 import { expand, extract, getOptions } from '../lib/emmet';
 import { getSyntaxType } from '../lib/syntax';
 import { getActivationContext } from '../abbreviation';
@@ -37,6 +37,7 @@ function expandAbbreviationWithTab(editor: CodeMirror.Editor) {
         const tracker = getTracker(editor);
 
         if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
+            storeTracker(editor, tracker);
             runExpand(editor, tracker.abbreviation.abbr, tracker.range, tracker.options);
             stopTracking(editor, true);
             return;
@@ -62,4 +63,11 @@ function expandAbbreviationWithTab(editor: CodeMirror.Editor) {
 function runExpand(editor: CodeMirror.Editor, abbr: string, range: TextRange, options?: UserConfig) {
     const snippet = expand(editor, abbr, options);
     replaceWithSnippet(editor, range, snippet);
+}
+
+/**
+ * Stores tracker for further undo
+ */
+function storeTracker(editor: CodeMirror.Editor, tracker: AbbreviationTracker) {
+    getInternalState(editor).lastTracker = tracker.serialize();
 }

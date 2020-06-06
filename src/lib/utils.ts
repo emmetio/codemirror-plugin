@@ -1,9 +1,11 @@
 import { AttributeToken } from '@emmetio/html-matcher';
 import { CSSProperty, TextRange } from '@emmetio/action-utils';
+import { SerializedTracker } from '../abbreviation/AbbreviationTracker';
 
 /** Characters to indicate tab stop start and end in generated snippet */
 export const tabStopStart = String.fromCodePoint(0xFFF0);
 export const tabStopEnd = String.fromCodePoint(0xFFF1);
+export const stateKey = '$$emmet';
 
 export interface AbbrError {
     message: string,
@@ -13,6 +15,14 @@ export interface AbbrError {
 export interface CMRange {
     anchor: CodeMirror.Position;
     head: CodeMirror.Position;
+}
+
+export type DisposeFn = () => void;
+
+export interface EmmetState {
+    tracker?: DisposeFn | null;
+    tagMatch?: DisposeFn | null;
+    lastTracker?: SerializedTracker | null;
 }
 
 /**
@@ -259,4 +269,22 @@ export function errorSnippet(err: AbbrError, baseClass = 'emmet-error-snippet'):
  */
 export function last<T>(arr: T[]): T | undefined {
     return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}
+
+/**
+ * Check if given editor instance has internal Emmet state
+ */
+export function hasInternalState(editor: CodeMirror.Editor): boolean {
+    return stateKey in editor;
+}
+
+/**
+ * Returns internal Emmet state for given editor instance
+ */
+export function getInternalState(editor: CodeMirror.Editor): EmmetState {
+    if (!hasInternalState(editor)) {
+        editor[stateKey] = {};
+    }
+
+    return editor[stateKey];
 }

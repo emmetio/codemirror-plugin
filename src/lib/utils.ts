@@ -253,6 +253,7 @@ export function rangeEmpty(r: TextRange): boolean {
  * Generates snippet with error pointer
  */
 export function errorSnippet(err: AbbrError, baseClass = 'emmet-error-snippet'): string {
+    const msg = err.message.split('\n')[0];
     const spacer = ' '.repeat(err.pos || 0);
     return `<div class="${baseClass}">
         <div class="${baseClass}-ptr">
@@ -260,7 +261,7 @@ export function errorSnippet(err: AbbrError, baseClass = 'emmet-error-snippet'):
             <div class="${baseClass}-tip"></div>
             <div class="${baseClass}-spacer">${spacer}</div>
         </div>
-        <div class="${baseClass}-message">${htmlEscape(err.message.replace(/\s+at\s+\d+$/, ''))}</div>
+        <div class="${baseClass}-message">${htmlEscape(msg.replace(/\s+at\s+\d+$/, ''))}</div>
     </div>`;
 }
 

@@ -10,7 +10,7 @@ import getOutputOptions from '../lib/output';
 
 const reJSXAbbrStart = /^[a-zA-Z.#\[\(]$/;
 const reWordBound = /^[\s>;"\']?[a-zA-Z.#!@\[\(]$/;
-const reStylesheetWordBound = /^[\s;]?[a-zA-Z!@]$/;
+const reStylesheetWordBound = /^[\s;"\']?[a-zA-Z!@]$/;
 const pairs = {
     '{': '}',
     '[': ']',
@@ -228,7 +228,7 @@ export function getActivationContext(editor: CodeMirror.Editor, pos: number): Us
         const ctx = getHTMLContext(content, pos, { xml: isXML(syntax) });
 
         if (ctx.css) {
-            return getCSSActivationContext(editor, pos, getEmbeddedStyleSyntax(content, ctx) || syntax, ctx.css);
+            return getCSSActivationContext(editor, pos, getEmbeddedStyleSyntax(content, ctx) || 'css', ctx.css);
         }
 
         if (!ctx.current) {

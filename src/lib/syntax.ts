@@ -194,6 +194,10 @@ export function getMarkupAbbreviationContext(code: string, ctx: HTMLContext): Ab
  * Returns context for Emmet abbreviation from given CSS context
  */
 export function getStylesheetAbbreviationContext(ctx: CSSContext): AbbreviationContext {
+    if (ctx.inline) {
+        return { name: CSSAbbreviationScope.Property }
+    }
+
     const parent = last(ctx.ancestors);
     let scope: string = CSSAbbreviationScope.Global;
     if (ctx.current) {

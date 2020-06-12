@@ -4,37 +4,23 @@ import { getHTMLContext, getCSSContext, CSSContext } from '@emmetio/action-utils
 import AbbreviationTracker, { handleChange, handleSelectionChange, stopTracking, startTracking } from './AbbreviationTracker';
 import getEmmetConfig from '../lib/config';
 import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax, syntaxInfo, enabledForSyntax, isXML, getEmbeddedStyleSyntax, getMarkupAbbreviationContext, getStylesheetAbbreviationContext, getSyntaxType } from '../lib/syntax';
-import { getCaret, substr, getContent } from '../lib/utils';
+import { getCaret, substr, getContent, pairs } from '../lib/utils';
 import { JSX_PREFIX, extract } from '../lib/emmet';
 import getOutputOptions from '../lib/output';
 
 const reJSXAbbrStart = /^[a-zA-Z.#\[\(]$/;
 const reWordBound = /^[\s>;"\']?[a-zA-Z.#!@\[\(]$/;
 const reStylesheetWordBound = /^[\s;"\']?[a-zA-Z!@]$/;
-const pairs = {
-    '{': '}',
-    '[': ']',
-    '(': ')'
-};
-
-const pairsEnd: string[] = [];
-for (const key of Object.keys(pairs)) {
-    pairsEnd.push(pairs[key]);
-}
 
 export default function initAbbreviationTracker(editor: CodeMirror.Editor) {
     let lastPos: number | null = null;
 
     const onChange = (ed: CodeMirror.Editor) => {
         const pos = getCaret(ed);
-        let tracker = handleChange(ed);
+        let tracker = handleChange(ed, pos);
 
         if (!tracker && lastPos !== null && lastPos === pos - 1 && allowTracking(ed, pos)) {
             tracker = startAbbreviationTracking(ed, pos);
-        }
-
-        if (tracker && shouldStopTracking(tracker, pos)) {
-            stopTracking(ed);
         }
 
         lastPos = pos;
@@ -163,46 +149,6 @@ function startAbbreviationTracking(editor: CodeMirror.Editor, pos: number): Abbr
             return tracker;
         }
     }
-}
-
-/**
- * Check if we should stop tracking abbreviation in given editor
- */
-function shouldStopTracking(tracker: AbbreviationTracker, pos: number): boolean {
-    if (tracker.forced) {
-        // Never reset forced abbreviation: it’s up to user how to handle it
-        return false;
-    }
-
-    if (!tracker.abbreviation || /[\r\n]/.test(tracker.abbreviation.abbr)) {
-        // — Stop tracking if abbreviation is empty
-        // — Never allow new lines in auto - tracked abbreviation
-        return true;
-    }
-
-    // Reset if user entered invalid character at the end of abbreviation
-    // or at the edge of auto - inserted paired character like`)` or`]`
-    if (tracker.abbreviation.type === 'error') {
-        if (tracker.range[1] === pos) {
-            // Last entered character is invalid
-            return true;
-        }
-
-        const { abbr } = tracker.abbreviation;
-        const start = tracker.range[0];
-        let targetPos = tracker.range[1];
-        while (targetPos > start) {
-            if (pairsEnd.includes(abbr[targetPos - start - 1])) {
-                targetPos--;
-            } else {
-                break;
-            }
-        }
-
-        return targetPos === pos;
-    }
-
-    return false;
 }
 
 /**

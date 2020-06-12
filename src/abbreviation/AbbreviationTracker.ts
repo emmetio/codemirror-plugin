@@ -1,6 +1,6 @@
 import { UserConfig, markupAbbreviation, MarkupAbbreviation, stylesheetAbbreviation, StylesheetAbbreviation } from 'emmet';
 import { TextRange } from '@emmetio/action-utils';
-import { substr, toRange, getCaret, AbbrError, errorSnippet } from '../lib/utils';
+import { substr, toRange, AbbrError, errorSnippet, getInternalState, pairsEnd } from '../lib/utils';
 import { getOptions, expand } from '../lib/emmet';
 import getEmmetConfig from '../lib/config';
 import { syntaxInfo, enabledForSyntax } from '../lib/syntax';
@@ -22,9 +22,17 @@ interface ParsedAbbreviationError extends AbbrBase {
 }
 
 export interface StartTrackingParams {
-    options?: UserConfig;
+    options: UserConfig;
     offset?: number;
     forced?: boolean;
+}
+
+interface StopTrackingOptions {
+    /** Do not remove contents of force-tracked abbreviation */
+    skipRemove?: boolean;
+
+    /** Forced tracker remove, do not add it to history */
+    force?: boolean;
 }
 
 /** Class name for Emmet abbreviation marker in editor */
@@ -53,84 +61,24 @@ export default class AbbreviationTracker {
     public range: TextRange;
     /** Offset in range where abbreviation actually starts */
     public offset = 0;
+    /** Abbreviation is forced, e.g. must be kept in editor as long as possible */
+    public forced = false;
+
     /** Parsed abbreviation for current range. May contain error */
     public abbreviation: ParsedAbbreviation | ParsedAbbreviationError | null = null;
-    public options: UserConfig | undefined;
+    public options: UserConfig;
 
     private marker: CodeMirror.TextMarker | null = null;
     private preview: CodeMirror.Editor | null = null;
     private forcedMarker: HTMLElement | null = null;
 
-    constructor(start: number, pos: number, length: number, public forced = false) {
+    constructor(start: number, pos: number, length: number, params: StartTrackingParams) {
         this.lastPos = pos;
         this.lastLength = length;
         this.range = [start, pos];
-    }
-
-    /**
-     * Shifts tracker location by given offset
-     */
-    shift(offset: number) {
-        this.range[0] += offset;
-        this.range[1] += offset;
-    }
-
-    /**
-     * Extends or shrinks range by given size
-     */
-    extend(size: number) {
-        this.range[1] += size;
-    }
-
-    /**
-     * Check if current region is in valid state
-     */
-    isValidRange(): boolean {
-        return this.range[0] < this.range[1] || (this.range[0] === this.range[1] && this.forced);
-    }
-
-    /**
-     * Updates abbreviation data from current tracker
-     */
-    updateAbbreviation(editor: CodeMirror.Editor) {
-        let abbr = substr(editor, this.range);
-        if (this.offset) {
-            abbr = abbr.slice(this.offset);
-        }
-
-        if (!this.options) {
-            this.options = getOptions(editor, this.range[0]);
-        }
-
-        this.abbreviation = null;
-
-        if (!abbr) {
-            return;
-        }
-
-        try {
-            let parsedAbbr: MarkupAbbreviation | StylesheetAbbreviation | undefined;
-            let simple = false;
-
-            if (this.options.type === 'stylesheet') {
-                parsedAbbr = stylesheetAbbreviation(abbr);
-            } else {
-                parsedAbbr = markupAbbreviation(abbr, {
-                    jsx: this.options.syntax === 'jsx'
-                });
-                simple = isSimpleMarkupAbbreviation(parsedAbbr);
-            }
-
-            const previewConfig = getPreviewConfig(this.options);
-            this.abbreviation = {
-                type: 'abbreviation',
-                abbr,
-                simple,
-                preview: expand(editor, parsedAbbr, previewConfig)
-            };
-        } catch (error) {
-            this.abbreviation = { type: 'error', abbr, error };
-        }
+        this.options = params.options;
+        this.forced = !!params.forced;
+        this.offset = params.offset || 0;
     }
 
     /**
@@ -247,6 +195,15 @@ export default class AbbreviationTracker {
         };
     }
 
+    /**
+     * Stores contents of current tracker in internal state of given editor.
+     * Stored tracker can be restored later
+     */
+    save(editor: CodeMirror.Editor) {
+        const state = getInternalState(editor);
+        state.lastTracker = this.serialize();
+    }
+
     private disposeMarker() {
         if (this.marker) {
             this.marker.clear();
@@ -272,14 +229,13 @@ export function getTracker(editor: CodeMirror.Editor): AbbreviationTracker | und
  * @param start Location of abbreviation start
  * @param pos Current caret position, must be greater that `start`
  */
-export function startTracking(editor: CodeMirror.Editor, start: number, pos: number, params?: StartTrackingParams): AbbreviationTracker {
-    const tracker = new AbbreviationTracker(start, pos, editor.getValue().length, params?.forced);
-    if (params) {
-        tracker.options = params.options;
-        tracker.offset = params.offset || 0;
-    }
-
-    tracker.updateAbbreviation(editor);
+export function startTracking(editor: CodeMirror.Editor, start: number, pos: number, params?: Partial<StartTrackingParams>): AbbreviationTracker {
+    const options = params?.options || getOptions(editor, start);
+    const tracker = new AbbreviationTracker(start, pos, editor.getValue().length, {
+        ...params,
+        options
+    });
+    tracker.abbreviation = getParsedAbbreviation(editor, [start, pos], options, params?.offset);
     tracker.mark(editor);
     return editor[trackerKey] = tracker;
 }
@@ -287,15 +243,23 @@ export function startTracking(editor: CodeMirror.Editor, start: number, pos: num
 /**
  * Stops abbreviation tracking in given editor instance
  */
-export function stopTracking(editor: CodeMirror.Editor, skipRemove?: boolean) {
+export function stopTracking(editor: CodeMirror.Editor, options?: StopTrackingOptions) {
     const tracker = getTracker(editor);
     if (tracker) {
         tracker.unmark();
-        if (tracker.forced && !skipRemove) {
+        if (tracker.forced && !options?.skipRemove) {
             // Contents of forced abbreviation must be removed
             const [from, to] = toRange(editor, tracker.range);
             editor.replaceRange('', from, to);
         }
+
+        if (options?.force) {
+            getInternalState(editor).lastTracker = null;
+        } else {
+            // Store tracker in history to restore it if user continues editing
+            tracker.save(editor);
+        }
+
         editor[trackerKey] = null;
     }
 }
@@ -303,54 +267,54 @@ export function stopTracking(editor: CodeMirror.Editor, skipRemove?: boolean) {
 /**
  * Handle content change in given editor instance
  */
-export function handleChange(editor: CodeMirror.Editor): AbbreviationTracker | undefined {
+export function handleChange(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
     const tracker = getTracker(editor);
+
     if (!tracker) {
         return;
     }
 
-    const { lastPos, range } = tracker;
+    const { lastPos } = tracker;
+    let range = tracker.range;
 
     if (lastPos < range[0] || lastPos > range[1]) {
         // Updated content outside abbreviation: reset tracker
         stopTracking(editor);
-        return
+        return;
     }
 
     const length = editor.getValue().length;
-    const pos = getCaret(editor);
     const delta = length - tracker.lastLength;
+    range = range.slice() as TextRange;
 
-    tracker.lastLength = length;
-    tracker.lastPos = pos;
+    // Modify range and validate it: if it leads to invalid abbreviation, reset it
+    updateRange(range, delta, lastPos);
 
-    if (delta < 0) {
-        // Removed some content
-        if (lastPos === range[0]) {
-            // Updated content at the abbreviation edge
-            tracker.shift(delta);
-        } else if (range[0] < lastPos && lastPos <= range[1]) {
-            tracker.extend(delta);
-        }
-    } else if (delta > 0 && range[0] <= lastPos && lastPos <= range[1]) {
-        // Inserted content
-        tracker.extend(delta);
-    }
-
-    // Ensure range is in valid state
-    if (!tracker.isValidRange()) {
-        stopTracking(editor);
-    } else {
-        tracker.updateAbbreviation(editor);
-        tracker.mark(editor);
+    // Handle edge case: empty forced abbreviation are allowed
+    if (range[0] === range[1] && tracker.forced) {
+        tracker.abbreviation = null;
         return tracker;
     }
+
+    const abbreviation = getParsedAbbreviation(editor, range, tracker.options, tracker.offset);
+
+    if (!abbreviation || (!tracker.forced && !isValidAbbreviation(abbreviation, range, pos))) {
+        stopTracking(editor);
+        return;
+    }
+
+    tracker.range = range;
+    tracker.abbreviation = abbreviation;
+    tracker.lastLength = length;
+    tracker.lastPos = pos;
+    tracker.mark(editor);
+    return tracker;
 }
 
-export function handleSelectionChange(editor: CodeMirror.Editor, caret = getCaret(editor)): AbbreviationTracker | undefined {
-    const tracker = getTracker(editor);
+export function handleSelectionChange(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
+    const tracker = getTracker(editor) || restoreTracker(editor, pos);
     if (tracker) {
-        tracker.lastPos = caret;
+        tracker.lastPos = pos;
     }
     return tracker;
 }
@@ -384,4 +348,116 @@ function getPreviewConfig(config: UserConfig): UserConfig {
 
 function previewField(index: number, placeholder: string) {
     return placeholder;
+}
+
+function updateRange(range: TextRange, delta: number, lastPos: number): TextRange {
+    if (delta < 0) {
+        // Content removed
+        if (lastPos === range[0]) {
+            // Updated content at the abbreviation edge
+            range[0] += delta;
+            range[1] += delta;
+        } else if (range[0] < lastPos && lastPos <= range[1]) {
+            range[1] += delta;
+        }
+    } else if (delta > 0 && range[0] <= lastPos && lastPos <= range[1]) {
+        // Content inserted
+        range[1] += delta;
+    }
+
+    return range;
+}
+
+/**
+ * Returns parsed abbreviation for given range
+ */
+function getParsedAbbreviation(editor: CodeMirror.Editor, range: TextRange, options: UserConfig, offset?: number): ParsedAbbreviation | ParsedAbbreviationError | null {
+    if (range[0] >= range[1]) {
+        // Invalid range
+        return null;
+    }
+
+    let abbr = substr(editor, range);
+    if (offset) {
+        abbr = abbr.slice(offset);
+    }
+
+    // Basic validation: do not allow empty abbreviations
+    // or newlines in abbreviations
+    if (!abbr || /[\r\n]/.test(abbr)) {
+        return null;
+    }
+
+    try {
+        let parsedAbbr: MarkupAbbreviation | StylesheetAbbreviation | undefined;
+        let simple = false;
+
+        if (options.type === 'stylesheet') {
+            parsedAbbr = stylesheetAbbreviation(abbr);
+        } else {
+            parsedAbbr = markupAbbreviation(abbr, {
+                jsx: options.syntax === 'jsx'
+            });
+            simple = isSimpleMarkupAbbreviation(parsedAbbr);
+        }
+
+        const previewConfig = getPreviewConfig(options);
+        return {
+            type: 'abbreviation',
+            abbr,
+            simple,
+            preview: expand(editor, parsedAbbr, previewConfig)
+        };
+    } catch (error) {
+        return { type: 'error', abbr, error };
+    }
+}
+
+/**
+ * Check if given parsed abbreviation is in valid state for keeping it marked
+ */
+function isValidAbbreviation(abbreviation: ParsedAbbreviation | ParsedAbbreviationError, range: TextRange, pos: number): boolean {
+    if (abbreviation.type === 'error') {
+        if (range[1] === pos) {
+            // Last entered character is invalid
+            return false;
+        }
+
+        const { abbr } = abbreviation;
+        const start = range[0];
+        let targetPos = range[1];
+        while (targetPos > start) {
+            if (pairsEnd.includes(abbr[targetPos - start - 1])) {
+                targetPos--;
+            } else {
+                break;
+            }
+        }
+
+        return targetPos !== pos;
+    }
+
+    return true;
+}
+
+/**
+ * Tries to restore abbreviation tracker for given editor at specified position
+ */
+export function restoreTracker(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
+    const state = getInternalState(editor);
+    const { lastTracker } = state;
+
+    if (lastTracker && lastTracker.range[0] <= pos && lastTracker.range[1] >= pos) {
+        // Tracker can be restored at given location. Make sure it’s contents matches
+        // contents of editor at the same location. If it doesn’t, reset stored tracker
+        // since it’s not valid anymore
+        state.lastTracker = null;
+
+        if (substr(editor, lastTracker.range) === lastTracker.abbr) {
+            return startTracking(editor, lastTracker.range[0], lastTracker.range[1], {
+                offset: lastTracker.offset,
+                forced: lastTracker.forced
+            });
+        }
+    }
 }

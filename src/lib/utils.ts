@@ -25,6 +25,17 @@ export interface EmmetState {
     lastTracker?: SerializedTracker | null;
 }
 
+export const pairs = {
+    '{': '}',
+    '[': ']',
+    '(': ')'
+};
+
+export const pairsEnd: string[] = [];
+for (const key of Object.keys(pairs)) {
+    pairsEnd.push(pairs[key]);
+}
+
 /**
  * Returns copy of region which starts and ends at non-space character
  */

@@ -449,10 +449,10 @@ export function restoreTracker(editor: CodeMirror.Editor, pos: number): Abbrevia
 
     if (lastTracker && lastTracker.range[0] <= pos && lastTracker.range[1] >= pos) {
         // Tracker can be restored at given location. Make sure it’s contents matches
-        // contents of editor at the same location. If it doesn’t, reset stored tracker
-        // since it’s not valid anymore
-        state.lastTracker = null;
-
+        // contents of editor at the same location.
+        // NB: DO NOT reset it if content doesn’t match: `restoreTracker()` might
+        // be invokes if expanded abbreviation contains tabstops and next caret
+        // location is inside previous abbreviation range
         if (substr(editor, lastTracker.range) === lastTracker.abbr) {
             return startTracking(editor, lastTracker.range[0], lastTracker.range[1], {
                 offset: lastTracker.offset,

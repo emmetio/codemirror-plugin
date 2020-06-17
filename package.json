@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/codemirror-plugin",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Plugin for CodeMirror web editor",
   "main": "dist/extension.cjs.js",
   "module": "dist/extension.es.js",

@@ -23,8 +23,13 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
     function onInput(evt: InputEvent) {
         evt && evt.stopPropagation();
         undo();
+        const abbr = input.value.trim();
+        if (!abbr) {
+            return;
+        }
+
         try {
-            const snippet = expand(editor, input.value, options);
+            const snippet = expand(editor, abbr, options);
             replaceWithSnippet(editor, wrapRange, snippet);
             updated = true;
             if (panel.classList.contains(errClass)) {
@@ -35,6 +40,7 @@ export default function wrapWithAbbreviation(editor: CodeMirror.Editor) {
             updated = false;
             panel.classList.add(errClass);
             errContainer.innerHTML = errorSnippet(err);
+            console.error(err);
         }
     };
 

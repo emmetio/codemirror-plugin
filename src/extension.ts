@@ -25,6 +25,7 @@ import emmetRemoveTag from './commands/remove-tag';
 import selectItem from './commands/select-item';
 import emmetSplitJoinTag from './commands/split-join-tag';
 import { expand, getOptions } from './lib/emmet';
+import { allowTracking } from './abbreviation';
 import { getTracker, stopTracking, startTracking } from './abbreviation/AbbreviationTracker';
 import { replaceWithSnippet, getInternalState, hasInternalState } from './lib/utils';
 
@@ -92,6 +93,7 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
     CM.defineOption('emmet', defaultConfig, (editor: CodeMirror.Editor, value: EmmetConfig) => {
         if (!hasInternalState(editor)) {
             editor.on('change', undoTracker);
+            editor.on('change', pasteTracker);
         }
 
         const state = getInternalState(editor);
@@ -178,6 +180,18 @@ function undoTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChangeL
                 });
             }
         }
+    }
+}
+
+/**
+ * Capture abbreviation on paste, if possible
+ */
+function pasteTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChangeLinkedList) {
+    if (change.origin === 'paste' && change.text.length === 1 && allowTracking(editor, editor.indexFromPos(change.from))) {
+        // Try to capture abbreviation on paste
+        const pos = editor.indexFromPos(change.from) + change.text[0].length;
+        extractTracker(editor, pos);
+
     }
 }
 

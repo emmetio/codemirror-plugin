@@ -73,7 +73,7 @@ export function extractTracker(editor: CodeMirror.Editor, pos: number): Abbrevia
 /**
  * Check if abbreviation tracking is allowed in editor at given location
  */
-function allowTracking(editor: CodeMirror.Editor, pos: number): boolean {
+export function allowTracking(editor: CodeMirror.Editor, pos: number): boolean {
     if (isEnabled(editor, pos)) {
         const syntax = syntaxFromPos(editor, pos);
         return syntax ? isSupported(syntax) || isJSX(syntax) : false;

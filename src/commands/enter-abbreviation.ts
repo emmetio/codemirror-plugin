@@ -1,4 +1,4 @@
-import { getTracker, stopTracking, startTracking } from '../abbreviation/AbbreviationTracker';
+import { getTracker, stopTracking, startTracking } from '../abbreviation';
 import { textRange } from '../lib/utils';
 
 export default function enterAbbreviationMode(editor: CodeMirror.Editor) {
@@ -13,7 +13,6 @@ export default function enterAbbreviationMode(editor: CodeMirror.Editor) {
 
     tracker = startTracking(editor, from, to, { forced: true });
     if (from !== to) {
-        tracker.showPreview(editor);
         editor.setSelection(editor.posFromIndex(to));
     }
 }

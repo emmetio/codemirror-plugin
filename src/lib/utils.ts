@@ -1,6 +1,5 @@
 import { AttributeToken } from '@emmetio/html-matcher';
 import { CSSProperty, TextRange } from '@emmetio/action-utils';
-import { SerializedTracker } from '../abbreviation/AbbreviationTracker';
 
 /** Characters to indicate tab stop start and end in generated snippet */
 export const tabStopStart = String.fromCodePoint(0xFFF0);
@@ -20,9 +19,9 @@ export interface CMRange {
 export type DisposeFn = () => void;
 
 export interface EmmetState {
+    id: string;
     tracker?: DisposeFn | null;
     tagMatch?: DisposeFn | null;
-    lastTracker?: SerializedTracker | null;
 }
 
 export const pairs = {
@@ -35,6 +34,8 @@ export const pairsEnd: string[] = [];
 for (const key of Object.keys(pairs)) {
     pairsEnd.push(pairs[key]);
 }
+
+let idCounter = 0;
 
 /**
  * Returns copy of region which starts and ends at non-space character
@@ -295,7 +296,7 @@ export function hasInternalState(editor: CodeMirror.Editor): boolean {
  */
 export function getInternalState(editor: CodeMirror.Editor): EmmetState {
     if (!hasInternalState(editor)) {
-        editor[stateKey] = {};
+        editor[stateKey] = { id: String(idCounter++) } as EmmetState;
     }
 
     return editor[stateKey];

@@ -1,4 +1,4 @@
-import { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
+import { getTracker, stopTracking } from '../abbreviation';
 import { pass } from '../lib/utils';
 
 export default function resetAbbreviation(editor: CodeMirror.Editor) {

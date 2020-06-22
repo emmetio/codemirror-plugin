@@ -1,7 +1,7 @@
+import { TextRange } from '@emmetio/action-utils';
 import { getCaret, substr } from '../lib/utils';
 import { isHTML, isXML, syntaxInfo } from '../lib/syntax';
 import { getTagContext } from '../lib/emmet';
-import { TextRange } from '@emmetio/action-utils';
 
 export default function goToTagPair(editor: CodeMirror.Editor) {
     let caret = getCaret(editor);

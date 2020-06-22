@@ -3,7 +3,12 @@ import { parse as parseMarkup, tokenize as tokenizeMarkup, MarkupAbbreviation } 
 import { parser as parseStylesheet, tokenize as tokenizeStylesheet, CSSAbbreviation } from '@emmetio/css-abbreviation';
 import CodeMirror from 'codemirror';
 import getEmmetConfig, { defaultConfig, EmmetConfig, EmmetEditorOptions } from './lib/config';
-import abbreviationTracker, { extractTracker } from './abbreviation';
+
+import abbreviationTracker, { extractTracker, allowTracking, getCompletion, restoreOnUndo } from './abbreviation';
+
+// import { extractTracker, allowTracking } from './abbreviation';
+// import { startTracking } from './abbreviation/AbbreviationTracker';
+
 import matchTags from './lib/match-tags';
 import markupMode from './mode/markup';
 import stylesheetMode from './mode/stylesheet';
@@ -25,9 +30,7 @@ import emmetRemoveTag from './commands/remove-tag';
 import selectItem from './commands/select-item';
 import emmetSplitJoinTag from './commands/split-join-tag';
 import { expand, getOptions } from './lib/emmet';
-import { allowTracking } from './abbreviation';
-import { getTracker, stopTracking, startTracking } from './abbreviation/AbbreviationTracker';
-import { replaceWithSnippet, getInternalState, hasInternalState } from './lib/utils';
+import { getInternalState, hasInternalState } from './lib/utils';
 
 export interface EmmetEditor extends CodeMirror.Editor {
     /**
@@ -140,21 +143,8 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
         if (typeof pos !== 'number') {
             pos = this.indexFromPos(pos);
         }
-        const tracker = getTracker(this) || extractTracker(this, pos);
-        if (tracker && tracker.contains(pos) && tracker.abbreviation?.type === 'abbreviation') {
-            const { abbr, preview } = tracker.abbreviation;
-            return {
-                text: abbr,
-                displayText: preview,
-                hint: () => {
-                    stopTracking(this);
-                    const snippet = expand(this, abbr, tracker.options);
-                    replaceWithSnippet(this, tracker.range, snippet);
-                },
-                from: this.posFromIndex(tracker.range[0]),
-                to: this.posFromIndex(tracker.range[1]),
-            } as CompletionItem;
-        }
+
+        return getCompletion(this, pos);
     });
 }
 
@@ -162,24 +152,10 @@ export default function registerEmmetExtension(CM: typeof CodeMirror) {
  * Undo tracker, if possible
  */
 function undoTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChangeLinkedList) {
-    if (change.origin === 'undo') {
-        const state = getInternalState(editor);
-        const { lastTracker } = state;
-
-        if (lastTracker) {
-            const shouldRestore = lastTracker.valid
-                && change.text.length === 1
-                && change.text[0] === lastTracker.abbr
-                && lastTracker.range[0] === editor.indexFromPos(change.from);
-
-            if (shouldRestore) {
-                state.lastTracker = null;
-                startTracking(editor, lastTracker.range[0], lastTracker.range[1], {
-                    offset: lastTracker.offset,
-                    forced: lastTracker.forced
-                });
-            }
-        }
+    if (change.origin === 'undo' && change.text.length === 1) {
+        const pos = editor.indexFromPos(change.from);
+        const abbr = change.text[0];
+        restoreOnUndo(editor, pos, abbr);
     }
 }
 
@@ -191,7 +167,6 @@ function pasteTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChange
         // Try to capture abbreviation on paste
         const pos = editor.indexFromPos(change.from) + change.text[0].length;
         extractTracker(editor, pos);
-
     }
 }
 

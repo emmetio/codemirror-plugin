@@ -1,11 +1,11 @@
 import { UserConfig } from 'emmet';
-import { TextRange } from '@emmetio/action-utils';
+import { TextRange, AbbreviationTrackerType } from '@emmetio/action-utils';
 import { pass, getCaret, replaceWithSnippet } from '../lib/utils';
 import getEmmetConfig from '../lib/config';
-import { getTracker, stopTracking } from '../abbreviation/AbbreviationTracker';
+import { getTracker, stopTracking, contains, runInTrackerContext } from '../abbreviation';
 import { expand, extract, getOptions } from '../lib/emmet';
 import { getSyntaxType } from '../lib/syntax';
-import { getActivationContext } from '../abbreviation';
+// import { getActivationContext } from '../abbreviation';
 
 export default function expandAbbreviation(editor: CodeMirror.Editor, tabKey?: boolean) {
     if (editor.somethingSelected()) {
@@ -36,27 +36,28 @@ function expandAbbreviationWithTab(editor: CodeMirror.Editor) {
     if (getEmmetConfig(editor).mark) {
         const tracker = getTracker(editor);
 
-        if (tracker && tracker.contains(caret) && tracker.abbreviation?.type === 'abbreviation') {
-            runExpand(editor, tracker.abbreviation.abbr, tracker.range, tracker.options);
+        if (tracker && contains(tracker, caret) && tracker.type === AbbreviationTrackerType.Abbreviation) {
+            runExpand(editor, tracker.abbreviation, tracker.range, tracker.config);
             stopTracking(editor, { skipRemove: true });
             return;
         }
         return pass(editor);
     }
 
-    const options = getActivationContext(editor, caret);
-    if (options) {
-        const pos = editor.posFromIndex(caret);
-        const line = editor.getLine(pos.line);
-        const abbr = extract(line, pos.ch, getSyntaxType(options.syntax));
-        if (abbr) {
-            const offset = caret - pos.ch;
-            runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
-            return;
+    return runInTrackerContext(editor, (controller, proxy) => {
+        const options = controller.getActivationContext(proxy, caret);
+        if (options) {
+            const pos = editor.posFromIndex(caret);
+            const line = editor.getLine(pos.line);
+            const abbr = extract(line, pos.ch, getSyntaxType(options.syntax));
+            if (abbr) {
+                const offset = caret - pos.ch;
+                runExpand(editor, abbr.abbreviation, [abbr.start + offset, abbr.end + offset], options);
+                return;
+            }
         }
-    }
-
-    return pass(editor);
+        return pass(editor);
+    });
 }
 
 function runExpand(editor: CodeMirror.Editor, abbr: string, range: TextRange, options?: UserConfig) {

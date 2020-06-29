@@ -1,7 +1,10 @@
 import { UserConfig } from 'emmet';
 import { AbbreviationTrackingController, EditorProxy, AbbreviationTracker, AbbreviationTrackerType, JSX_PREFIX, StopTrackingParams, StartTrackingParams } from '@emmetio/action-utils';
 import { getInternalState, getCaret, toRange, errorSnippet, replaceWithSnippet } from './lib/utils';
-import { isSupported, isJSX, syntaxFromPos, isCSS, isHTML, docSyntax, syntaxInfo, enabledForSyntax, isXML, getSyntaxType } from './lib/syntax';
+import {
+    isSupported, isJSX, isCSS, isHTML, isXML, syntaxFromPos, docSyntax,
+    syntaxInfo, enabledForSyntax, getSyntaxType
+} from './lib/syntax';
 import { getOptions, extract, expand } from './lib/emmet';
 import getOutputOptions from './lib/output';
 import getEmmetConfig from './lib/config';
@@ -167,6 +170,10 @@ class CMEditorProxy implements EditorProxy {
      */
     isCSS(syntax: string): boolean {
         return isCSS(syntax);
+    }
+
+    syntaxType(syntax: string) {
+        return getSyntaxType(syntax);
     }
 
     /**

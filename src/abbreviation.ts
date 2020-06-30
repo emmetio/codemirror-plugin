@@ -135,7 +135,7 @@ class CMEditorProxy implements EditorProxy {
                 }
 
                 // @ts-ignore
-                this.preview = new editor.constructor(previewElem, {
+                this.preview = new this.cm.constructor(previewElem, {
                     mode: cm.getOption('mode'),
                     readOnly: 'nocursor',
                     lineNumbers: false

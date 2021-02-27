@@ -116,7 +116,7 @@ export function evaluateMath(code: string, pos: number, options?: Partial<MathEx
         try {
             const [start, end] = expr;
             const result = evaluate(code.slice(start, end));
-            if (result) {
+            if (result !== null) {
                 return {
                     start, end, result,
                     snippet: result.toFixed(4).replace(/\.?0+$/, '')

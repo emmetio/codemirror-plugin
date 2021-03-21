@@ -295,8 +295,10 @@ export function isEnabled(editor: CodeMirror.Editor, pos: number): boolean {
 
 /**
  * If allowed, tries to extract abbreviation from given completion context
+ * @param forceValid Enforces tracker to be valid, e.g. do not track abbreviation
+ * if it’s not valid
  */
-export function extractTracker(editor: CodeMirror.Editor, pos: number): AbbreviationTracker | undefined {
+export function extractTracker(editor: CodeMirror.Editor, pos: number, forceValid?: boolean): AbbreviationTracker | undefined {
     return proxy.run(editor, () => {
         const syntax = proxy.syntax();
         const prefix = proxy.isJSX(syntax) ? JSX_PREFIX : '';
@@ -309,6 +311,10 @@ export function extractTracker(editor: CodeMirror.Editor, pos: number): Abbrevia
             });
 
             if (tracker) {
+                if (tracker.type === AbbreviationTrackerType.Error && forceValid) {
+                    controller.stopTracking(proxy, { force: true });
+                    return;
+                }
                 proxy.showPreview(tracker);
             }
             return tracker;

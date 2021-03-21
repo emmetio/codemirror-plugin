@@ -166,7 +166,7 @@ function pasteTracker(editor: CodeMirror.Editor, change: CodeMirror.EditorChange
     if (change.origin === 'paste' && change.text.length === 1 && allowTracking(editor, editor.indexFromPos(change.from))) {
         // Try to capture abbreviation on paste
         const pos = editor.indexFromPos(change.from) + change.text[0].length;
-        extractTracker(editor, pos);
+        extractTracker(editor, pos, true);
     }
 }
 

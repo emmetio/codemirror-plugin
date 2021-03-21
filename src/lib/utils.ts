@@ -60,36 +60,18 @@ export function narrowToNonSpace(editor: CodeMirror.Editor, range: TextRange): T
  * Replaces given range in editor with snippet contents
  */
 export function replaceWithSnippet(editor: CodeMirror.Editor, range: TextRange, snippet: string): boolean {
-    let fieldStartIx = snippet.indexOf(tabStopStart);
-    let fieldEndIx = snippet.indexOf(tabStopEnd);
-    let selFrom: number | undefined;
-    let selTo: number | undefined;
-
-    if (fieldStartIx !== -1 && fieldEndIx !== -1) {
-        selFrom = range[0] + fieldStartIx;
-        selTo = range[0] + fieldEndIx - tabStopStart.length;
-        snippet = snippet.slice(0, fieldStartIx)
-            + snippet.slice(fieldStartIx + tabStopStart.length, fieldEndIx)
-            + snippet.slice(fieldEndIx + tabStopEnd.length);
-    } else if (fieldStartIx !== -1) {
-        selFrom = range[0] + fieldStartIx;
-        snippet = snippet.slice(0, fieldStartIx)
-            + snippet.slice(fieldStartIx + tabStopStart.length);
-    }
-
     return editor.operation(() => {
+        const snippetPayload = getSelectionsFromSnippet(snippet, range[0]);
         const [from, to] = toRange(editor, range);
-        editor.replaceRange(snippet, from, to);
+        editor.replaceRange(snippetPayload.snippet, from, to);
 
         // Position cursor
-        if (selFrom != null) {
-            const selFromPos = editor.posFromIndex(selFrom);
-            const selToPos = selTo != null ? editor.posFromIndex(selTo) : void 0;
-            if (selToPos) {
-                editor.setSelection(selFromPos, selToPos);
-            } else {
-                editor.setCursor(selFromPos);
-            }
+        if (snippetPayload.ranges.length) {
+            const selections = snippetPayload.ranges.map(r => {
+                const [head, anchor] = toRange(editor, r);
+                return {  head, anchor } as CodeMirror.Range;
+            });
+            editor.setSelections(selections);
         }
 
         return true;
@@ -300,4 +282,38 @@ export function getInternalState(editor: CodeMirror.Editor): EmmetState {
     }
 
     return editor[stateKey];
+}
+
+/**
+ * Finds and collects selections ranges from given snippet
+ */
+function getSelectionsFromSnippet(snippet: string, base = 0): { ranges: TextRange[], snippet: string } {
+    // Find and collect selection ranges from snippet
+    const ranges: TextRange[] = [];
+    let result = '';
+    let sel: TextRange | null = null;
+    let offset = 0;
+    let i = 0;
+    let ch: string;
+
+    while (i < snippet.length) {
+        ch = snippet.charAt(i++);
+        if (ch === tabStopStart || ch === tabStopEnd) {
+            result += snippet.slice(offset, i - 1);
+            offset = i;
+
+            if (ch === tabStopStart) {
+                sel = [base + result.length, base + result.length];
+                ranges.push(sel);
+            } else if (sel) {
+                sel[1] = base + result.length;
+                sel = null;
+            }
+        }
+    }
+
+    return {
+        ranges,
+        snippet: result + snippet.slice(offset)
+    };
 }

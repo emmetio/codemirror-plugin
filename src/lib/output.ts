@@ -40,10 +40,10 @@ export default function getOutputOptions(editor: CodeMirror.Editor, pos?: number
  * Produces tabstop for CodeMirror editor
  */
 export function field() {
-    let handled = false;
+    let handled = -1;
     return (index: number, placeholder: string) => {
-        if (!handled) {
-            handled = true;
+        if (handled === -1 || handled === index) {
+            handled = index;
             return placeholder
                 ? tabStopStart + placeholder + tabStopEnd
                 : tabStopStart;

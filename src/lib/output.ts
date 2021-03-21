@@ -49,7 +49,7 @@ export function field() {
                 : tabStopStart;
         }
 
-        return '';
+        return placeholder || '';
     }
 }
 

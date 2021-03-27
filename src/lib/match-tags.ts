@@ -88,14 +88,21 @@ export default function markTagMatches(editor: CodeMirror.Editor) {
                 const cursor = editor.getCursor();
                 const openRange = open.find();
                 const closeRange = close.find();
-                let shouldReset = false;
 
-                if (containsPos(openRange, cursor)) {
-                    // Update happened inside open tag, update close tag as well
-                    shouldReset = updateTag(editor, openRange, closeRange);
-                } else if (containsPos(closeRange, cursor)) {
-                    // Update happened inside close tag, update open tag as well
-                    shouldReset = updateTag(editor, closeRange, openRange);
+                let shouldReset = false;
+                // Handle edge case when user deletes text fragment which invalidates
+                // matched tags, e.g. in `<div>1</div>` remove `>1</div`.
+                // In this case, a closing range becomes empty
+                if (isEmptyRange(editor, openRange) || isEmptyRange(editor, closeRange)) {
+                    shouldReset = true;
+                } else if (isValidAutoRenameRanges(editor, openRange, closeRange)) {
+                    if (containsPos(openRange, cursor)) {
+                        // Update happened inside open tag, update close tag as well
+                        shouldReset = updateTag(editor, openRange, closeRange);
+                    } else if (containsPos(closeRange, cursor)) {
+                        // Update happened inside close tag, update open tag as well
+                        shouldReset = updateTag(editor, closeRange, openRange);
+                    }
                 }
 
                 if (shouldReset) {
@@ -236,4 +243,14 @@ function containsPos(range: CMMarkRange, pos: CodeMirror.Position, exclude?: boo
 
 function comparePos(a: CodeMirror.Position, b: CodeMirror.Position) {
     return a.line - b.line || a.ch - b.ch;
+}
+
+function isValidAutoRenameRanges(editor: CodeMirror.Editor, open: CMMarkRange, close: CMMarkRange) {
+    const openName = editor.getRange(open.from, open.to);
+    const closeName = editor.getRange(close.from, close.to);
+    return openName !== closeName;
+}
+
+function isEmptyRange(editor: CodeMirror.Editor, range: CMMarkRange): boolean {
+    return editor.getRange(range.from, range.to) === '';
 }
